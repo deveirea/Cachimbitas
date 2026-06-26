@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Capiómetro 🦫</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #FDF6EC;
+  --cream2: #FFFAF3;
+  --brown: #C4874A;
+  --brown-dark: #7A4A1E;
+  --brown-mid: #B07040;
+  --brown-light: #E8C88A;
+  --brown-pale: #F5E6CC;
+  --green: #7DBF8E;
+  --green-bg: #E8F5EC;
+  --green-dark: #2E7D4F;
+  --yellow: #F0C060;
+  --yellow-bg: #FFF8DC;
+  --yellow-dark: #8A6000;
+  --red: #E07373;
+  --red-bg: #FFEEEE;
+  --red-dark: #C0392B;
+  --border: #EDD9B8;
+  --shadow: rgba(180,120,60,0.10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Nunito', sans-serif; background: var(--cream); min-height: 100vh; overflow-x: hidden; }
+
+/* CONFETTI */
+.confetti-piece { position: fixed; width: 10px; height: 10px; border-radius: 2px; opacity: 0; pointer-events: none; z-index: 9999; animation: confettiFall 1.8s ease-in forwards; }
+@keyframes confettiFall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
+
+/* ── AUTH SCREEN ── */
+#authScreen {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 100vh; padding: 2rem; text-align: center;
+  background: radial-gradient(ellipse at 60% 40%, #F5E6CC 0%, #FDF6EC 70%);
+}
+.w-flowers { font-size: 28px; margin-bottom: 1rem; animation: floatY 3s ease-in-out infinite; }
+@keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.w-title { font-size: 32px; font-weight: 900; color: var(--brown-dark); letter-spacing: -1px; }
+.w-title span { color: var(--brown); }
+.w-sub { font-size: 14px; color: var(--brown-mid); margin: 6px 0 20px; }
+.w-capy { margin-bottom: 20px; filter: drop-shadow(0 6px 18px rgba(180,120,60,0.2)); animation: floatY 3s ease-in-out infinite; }
+
+/* AUTH TABS */
+.auth-tabs { display: flex; gap: 0; background: var(--brown-pale); border-radius: 14px; padding: 4px; margin-bottom: 18px; width: 100%; max-width: 320px; }
+.auth-tab { flex: 1; padding: 9px; border: none; background: none; border-radius: 10px; font-size: 13px; font-weight: 800; color: var(--brown-mid); cursor: pointer; font-family: 'Nunito', sans-serif; transition: all .2s; }
+.auth-tab.on { background: #fff; color: var(--brown-dark); box-shadow: 0 2px 8px var(--shadow); }
+
+/* AUTH FORM */
+.auth-form { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 10px; }
+.auth-form input {
+  width: 100%; padding: 13px 16px; border: 2px solid var(--brown-light); border-radius: 14px;
+  font-size: 15px; font-weight: 700; color: var(--brown-dark); background: var(--cream2);
+  font-family: 'Nunito', sans-serif; outline: none; transition: border-color .2s;
+}
+.auth-form input:focus { border-color: var(--brown); }
+.auth-form input::placeholder { color: var(--brown-light); font-weight: 600; }
+.btn-auth {
+  background: var(--brown); color: #fff; border: none; padding: 14px;
+  border-radius: 14px; font-size: 15px; font-weight: 800; cursor: pointer;
+  font-family: 'Nunito', sans-serif; transition: background .2s, transform .1s; margin-top: 2px;
+}
+.btn-auth:hover { background: var(--brown-dark); }
+.btn-auth:active { transform: scale(0.97); }
+.auth-msg { font-size: 12px; font-weight: 700; padding: 10px 14px; border-radius: 10px; text-align: center; display: none; }
+.auth-msg.err { background: var(--red-bg); color: var(--red-dark); display: block; }
+.auth-msg.ok  { background: var(--green-bg); color: var(--green-dark); display: block; }
+
+/* PASSWORD TOGGLE */
+.pw-wrap { position: relative; }
+.pw-wrap input { padding-right: 44px; }
+.pw-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px; color: var(--brown-mid); padding: 4px; }
+
+/* MAIN APP */
+#mainApp { display: none; padding-bottom: 140px; }
+
+/* HEADER */
+.header {
+  background: linear-gradient(135deg, var(--brown-dark) 0%, var(--brown) 100%);
+  padding: 18px 16px 0; position: sticky; top: 0; z-index: 50;
+  box-shadow: 0 2px 16px rgba(122,74,30,0.18);
+}
+.header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.hname { color: #fff; font-size: 18px; font-weight: 800; }
+.hsub { color: rgba(255,255,255,0.6); font-size: 11px; margin-top: 2px; }
+.header-right { display: flex; gap: 8px; align-items: center; }
+.hcapy-btn {
+  width: 44px; height: 44px; border-radius: 50%; border: 2.5px solid rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background .2s; font-size: 18px; color: #fff;
+}
+.hlogout-btn {
+  height: 36px; padding: 0 13px; border-radius: 20px; border: 2px solid rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background .2s, border-color .2s; font-size: 12px; font-weight: 800;
+  color: #fff; font-family: 'Nunito', sans-serif; letter-spacing: .02em; gap: 4px;
+}
+.hcapy-btn:hover { background: rgba(255,255,255,0.25); }
+.hlogout-btn:hover { background: rgba(255,80,80,0.35); border-color: #ffaaaa; }
+.stat-strip { display: grid; grid-template-columns: repeat(5,1fr); gap: 5px; padding-bottom: 14px; }
+.stat { background: rgba(255,255,255,0.15); border-radius: 12px; padding: 7px 4px; text-align: center; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2); }
+.stat-n { color: #fff; font-size: 13px; font-weight: 800; }
+.stat-l { color: rgba(255,255,255,0.65); font-size: 8.5px; margin-top: 2px; font-weight: 600; }
+
+/* TABS */
+.tabs-wrap { background: var(--cream2); border-bottom: 2px solid var(--border); padding: 0 16px; }
+.tabs { display: flex; overflow-x: auto; gap: 0; }
+.tb { padding: 12px 14px; font-size: 12px; font-weight: 800; color: var(--brown-mid); border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap; font-family: 'Nunito', sans-serif; transition: color .2s; }
+.tb.on { color: var(--brown-dark); border-bottom-color: var(--brown); }
+
+/* BODY */
+.body { padding: 14px 14px; }
+.panel { display: none; }
+.panel.on { display: block; }
+
+/* SECTION TITLE */
+.sec-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--brown-mid); margin: 16px 0 8px; }
+
+/* CARD */
+.card { background: var(--cream2); border-radius: 18px; border: 1.5px solid var(--border); padding: 14px; margin-bottom: 2px; box-shadow: 0 2px 10px var(--shadow); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.three { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+/* GRADE INPUT FIELD */
+.gfield { position: relative; }
+.gfield label { display: block; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--brown-mid); margin-bottom: 5px; }
+.gfield input {
+  width: 100%; padding: 11px 12px; border: 2px solid var(--border); border-radius: 12px;
+  font-size: 17px; font-weight: 800; color: var(--brown-dark); background: var(--cream);
+  font-family: 'Nunito', sans-serif; outline: none; transition: border-color .2s, background .2s;
+  text-align: center;
+}
+.gfield input::placeholder { color: var(--brown-light); font-size: 13px; font-weight: 700; }
+.gfield input:focus { border-color: var(--brown); background: #fff; }
+.gfield input.g-green { border-color: var(--green); background: var(--green-bg); color: var(--green-dark); }
+.gfield input.g-yellow { border-color: var(--yellow); background: var(--yellow-bg); color: var(--yellow-dark); }
+.gfield input.g-red { border-color: var(--red); background: var(--red-bg); color: var(--red-dark); }
+/* hint label debajo del input */
+.min-hint-label {
+  display: block; font-size: 10px; font-weight: 800; margin-top: 4px;
+  text-align: center; border-radius: 6px; padding: 2px 6px;
+  transition: opacity .2s; opacity: 0; pointer-events: none;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.min-hint-label.show { opacity: 1; }
+.min-hint-label.h-green { color: var(--green-dark); background: var(--green-bg); }
+.min-hint-label.h-yellow { color: var(--yellow-dark); background: var(--yellow-bg); }
+.min-hint-label.h-red { color: var(--red-dark); background: var(--red-bg); }
+.min-hint-label.h-impossible { color: var(--red-dark); background: var(--red-bg); }
+
+/* PROMEDIO CARD */
+.pf-card { background: var(--brown-dark); border-radius: 18px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; margin: 12px 0 6px; box-shadow: 0 4px 16px rgba(122,74,30,0.22); }
+.pf-label { color: rgba(255,255,255,0.65); font-size: 11px; font-weight: 700; }
+.pf-sub { color: rgba(255,255,255,0.5); font-size: 10px; margin-top: 2px; }
+.pf-val { color: #fff; font-size: 30px; font-weight: 900; }
+.badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 10px; font-weight: 800; margin-left: 6px; vertical-align: middle; }
+.b-ok { background: var(--green-bg); color: var(--green-dark); }
+.b-w  { background: var(--yellow-bg); color: var(--yellow-dark); }
+.b-bad{ background: var(--red-bg); color: var(--red-dark); }
+.prog-wrap { background: var(--brown-pale); border-radius: 8px; height: 8px; overflow: hidden; margin-bottom: 14px; }
+.prog { height: 8px; border-radius: 8px; transition: width .5s cubic-bezier(.4,0,.2,1), background .4s; }
+
+/* NEEDS */
+.need-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 13px; border-radius: 12px; margin-bottom: 7px; }
+.ni-name { font-size: 12px; font-weight: 700; }
+.ni-tip  { font-size: 10px; margin-top: 2px; opacity: .75; }
+.ni-val  { font-size: 16px; font-weight: 900; flex-shrink: 0; margin-left: 8px; }
+.ni-green  { background: var(--green-bg); }
+.ni-green  .ni-name, .ni-green .ni-val { color: var(--green-dark); }
+.ni-yellow { background: var(--yellow-bg); }
+.ni-yellow .ni-name, .ni-yellow .ni-val { color: var(--yellow-dark); }
+.ni-red    { background: var(--red-bg); }
+.ni-red    .ni-name, .ni-red .ni-val { color: var(--red-dark); }
+.ni-done   { background: var(--brown-pale); }
+.ni-done   .ni-name, .ni-done .ni-val { color: var(--brown-mid); }
+.ni-impossible { background: #F5E6CC; }
+.ni-impossible .ni-name, .ni-impossible .ni-val { color: var(--brown-dark); }
+
+/* BOTÓN GRAVE */
+.btn-grave { width: 100%; padding: 13px; background: var(--red-bg); border: 2px solid var(--red); border-radius: 14px; color: var(--red-dark); font-size: 13px; font-weight: 800; cursor: pointer; font-family: 'Nunito', sans-serif; margin-bottom: 8px; transition: background .2s, transform .1s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-grave:hover { background: #FFDDDD; }
+.btn-grave:active { transform: scale(0.98); }
+
+/* MODO GRAVE OVERLAY */
+#graveOverlay { display: none; position: fixed; inset: 0; background: rgba(50,20,10,0.55); z-index: 200; align-items: flex-end; justify-content: center; animation: fadeIn .25s ease; }
+#graveOverlay.show { display: flex; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.grave-sheet { background: var(--cream2); border-radius: 28px 28px 0 0; padding: 24px 20px 36px; width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto; animation: slideUp .3s cubic-bezier(.4,0,.2,1); }
+@keyframes slideUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
+.grave-title { font-size: 18px; font-weight: 900; color: var(--red-dark); text-align: center; margin-bottom: 4px; }
+.grave-sub   { font-size: 12px; color: var(--brown-mid); text-align: center; margin-bottom: 18px; }
+.btn-close-grave { position: absolute; top: 16px; right: 16px; background: var(--brown-pale); border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--brown-dark); font-family: 'Nunito', sans-serif; }
+
+/* CAPY CUSTOMIZER */
+#capyCustomizer { display:none; position:fixed; inset:0; background:rgba(50,20,10,0.55); z-index:300; align-items:flex-end; justify-content:center; }
+#capyCustomizer.show { display:flex; }
+.custom-sheet { background:var(--cream2); border-radius:28px 28px 0 0; padding:24px 20px 40px; width:100%; max-width:480px; animation:slideUp .3s cubic-bezier(.4,0,.2,1); position:relative; }
+.custom-title { font-size:18px; font-weight:900; color:var(--brown-dark); text-align:center; margin-bottom:4px; }
+.custom-sub { font-size:12px; color:var(--brown-mid); text-align:center; margin-bottom:20px; }
+.custom-section { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.1em; color:var(--brown-mid); margin:14px 0 8px; }
+.color-grid { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:8px; }
+.color-btn { width:42px; height:42px; border-radius:50%; border:3px solid transparent; cursor:pointer; transition:transform .15s, border-color .15s; font-size:20px; display:flex; align-items:center; justify-content:center; }
+.color-btn:hover { transform:scale(1.12); }
+.color-btn.selected { border-color: var(--brown-dark); transform:scale(1.12); }
+.acc-grid { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+.acc-btn { padding:8px 14px; border-radius:20px; border:2px solid var(--border); background:var(--cream); font-size:18px; cursor:pointer; transition:all .15s; }
+.acc-btn:hover { border-color:var(--brown); }
+.acc-btn.selected { border-color:var(--brown-dark); background:var(--brown-pale); }
+.capy-preview { display:flex; justify-content:center; margin:16px 0 8px; }
+.btn-close-custom { position:absolute; top:16px; right:16px; background:var(--brown-pale); border:none; border-radius:50%; width:32px; height:32px; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--brown-dark); font-family:'Nunito',sans-serif; }
+
+/* OUTFIT PICKER */
+.outfit-section { margin: 14px 0 0; }
+.outfit-section-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--brown-mid); margin-bottom: 8px; text-align: center; }
+.outfit-grid { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.outfit-btn {
+  width: 52px; height: 52px; border-radius: 14px; border: 2.5px solid var(--border);
+  background: var(--cream); font-size: 22px; cursor: pointer; transition: all .15s;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+}
+.outfit-btn:hover { border-color: var(--brown); transform: scale(1.08); }
+.outfit-btn.selected { border-color: var(--brown-dark); background: var(--brown-pale); box-shadow: 0 2px 8px var(--shadow); transform: scale(1.08); }
+.outfit-btn span { font-size: 8px; font-weight: 800; color: var(--brown-mid); }
+.outfit-btn.selected span { color: var(--brown-dark); }
+.outfit-none-btn { font-size: 13px; padding: 0 14px; }
+
+/* CHANGE OUTFIT BUTTON */
+.btn-outfit-change {
+  margin-top: 6px; padding: 7px 16px; border-radius: 20px; border: 2px solid var(--border);
+  background: var(--cream); font-size: 12px; font-weight: 800; color: var(--brown-mid);
+  cursor: pointer; font-family: 'Nunito', sans-serif; display: flex; align-items: center; gap: 6px;
+  transition: all .15s;
+}
+.btn-outfit-change:hover { border-color: var(--brown); color: var(--brown-dark); }
+
+/* OUTFIT MODAL */
+#outfitModal { display:none; position:fixed; inset:0; background:rgba(50,20,10,0.55); z-index:400; align-items:flex-end; justify-content:center; }
+#outfitModal.show { display:flex; }
+.outfit-sheet { background:var(--cream2); border-radius:28px 28px 0 0; padding:24px 20px 40px; width:100%; max-width:480px; animation:slideUp .3s cubic-bezier(.4,0,.2,1); position:relative; }
+.outfit-sheet-title { font-size:18px; font-weight:900; color:var(--brown-dark); text-align:center; margin-bottom:4px; }
+.outfit-sheet-sub { font-size:12px; color:var(--brown-mid); text-align:center; margin-bottom:18px; }
+.btn-close-outfit { position:absolute; top:16px; right:16px; background:var(--brown-pale); border:none; border-radius:50%; width:32px; height:32px; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--brown-dark); font-family:'Nunito',sans-serif; }
+#capyFloat { position: fixed; bottom: 16px; right: 16px; z-index: 100; display: none; flex-direction: column; align-items: flex-end; pointer-events: none; }
+#capyFloat.show { display: flex; }
+.capy-bubble { background: var(--cream2); border: 2px solid var(--border); border-radius: 16px 16px 4px 16px; padding: 9px 13px; font-size: 12px; font-weight: 700; color: var(--brown-dark); max-width: 180px; margin-bottom: 6px; text-align: center; line-height: 1.4; box-shadow: 0 4px 14px var(--shadow); animation: bubblePop .3s cubic-bezier(.4,0,.2,1); pointer-events: none; }
+@keyframes bubblePop { from{transform:scale(0.85) translateY(8px);opacity:0} to{transform:scale(1) translateY(0);opacity:1} }
+.capy-svg-wrap { filter: drop-shadow(0 4px 12px rgba(180,120,60,0.25)); animation: capyBob 3s ease-in-out infinite; pointer-events: none; }
+@keyframes capyBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+.capy-svg-wrap.capy-dance { animation: capyDance .5s ease-in-out 4; }
+@keyframes capyDance { 0%{transform:rotate(-8deg) translateY(0)} 50%{transform:rotate(8deg) translateY(-8px)} 100%{transform:rotate(0deg) translateY(0)} }
+.capy-svg-wrap.capy-scared { animation: capyShake .15s ease-in-out 5; }
+@keyframes capyShake { 0%,100%{transform:translateX(0)} 50%{transform:translateX(-6px)} }
+.capy-svg-wrap.capy-sleep { animation: none; opacity: .75; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ AUTH SCREEN ═══════════════ -->
+<div id="authScreen">
+  <div class="w-flowers">🌸 🌼 🌸</div>
+  <div class="w-capy">
+    <svg width="120" height="130" viewBox="0 0 120 130" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="38" cy="22" r="9" fill="#FFB347" opacity=".9"/>
+      <circle cx="56" cy="14" r="7" fill="#FF9EC7" opacity=".9"/>
+      <circle cx="74" cy="20" r="8" fill="#FFB347" opacity=".9"/>
+      <circle cx="90" cy="30" r="6" fill="#FF9EC7" opacity=".85"/>
+      <circle cx="56" cy="14" r="3" fill="#fff" opacity=".7"/>
+      <circle cx="38" cy="22" r="3.5" fill="#fff" opacity=".7"/>
+      <ellipse cx="60" cy="95" rx="34" ry="26" fill="#c8956b"/>
+      <ellipse cx="60" cy="72" rx="30" ry="28" fill="#d4a574"/>
+      <ellipse cx="44" cy="56" rx="11" ry="9" fill="#d4a574"/>
+      <ellipse cx="76" cy="56" rx="11" ry="9" fill="#d4a574"/>
+      <ellipse cx="44" cy="55" rx="8" ry="6" fill="#c8956b"/>
+      <ellipse cx="76" cy="55" rx="8" ry="6" fill="#c8956b"/>
+      <ellipse cx="60" cy="74" rx="22" ry="20" fill="#d4a574"/>
+      <ellipse cx="51" cy="69" rx="5" ry="5.5" fill="#fff"/>
+      <ellipse cx="69" cy="69" rx="5" ry="5.5" fill="#fff"/>
+      <circle cx="52" cy="70" r="3.2" fill="#1a1a2e"/>
+      <circle cx="70" cy="70" r="3.2" fill="#1a1a2e"/>
+      <circle cx="53" cy="69" r="1.2" fill="#fff"/>
+      <circle cx="71" cy="69" r="1.2" fill="#fff"/>
+      <ellipse cx="60" cy="78" rx="7" ry="3.5" fill="#c8956b"/>
+      <ellipse cx="57" cy="77" rx="2.5" ry="2" fill="#b07040"/>
+      <ellipse cx="63" cy="77" rx="2.5" ry="2" fill="#b07040"/>
+      <circle cx="43" cy="73" r="4" fill="#e8c4a0" opacity=".6"/>
+      <circle cx="77" cy="73" r="4" fill="#e8c4a0" opacity=".6"/>
+      <ellipse cx="30" cy="82" rx="8" ry="5" fill="#d4a574" transform="rotate(-40 30 82)"/>
+      <ellipse cx="90" cy="82" rx="8" ry="5" fill="#d4a574" transform="rotate(40 90 82)"/>
+      <ellipse cx="22" cy="74" rx="6" ry="4" fill="#d4a574" transform="rotate(-50 22 74)"/>
+      <ellipse cx="98" cy="74" rx="6" ry="4" fill="#d4a574" transform="rotate(50 98 74)"/>
+      <ellipse cx="46" cy="115" rx="7" ry="10" fill="#c8956b"/>
+      <ellipse cx="74" cy="115" rx="7" ry="10" fill="#c8956b"/>
+      <ellipse cx="40" cy="124" rx="6" ry="5" fill="#c8956b"/>
+      <ellipse cx="80" cy="124" rx="6" ry="5" fill="#c8956b"/>
+    </svg>
+  </div>
+  <div class="w-title">El <span>Capiómetro</span> 🦫</div>
+  <div class="w-sub">Tu compañero de notas, promediador oficial</div>
+
+  <div class="auth-tabs">
+    <button class="auth-tab on" onclick="showAuthTab('login')">Iniciar sesión</button>
+    <button class="auth-tab" onclick="showAuthTab('register')">Crear cuenta</button>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="loginForm" class="auth-form">
+    <input id="loginUser" type="text" placeholder="Usuario" autocomplete="username" maxlength="20">
+    <div class="pw-wrap">
+      <input id="loginPass" type="password" placeholder="Contraseña" autocomplete="current-password">
+      <button class="pw-toggle" type="button" onclick="togglePw('loginPass',this)">👁️</button>
+    </div>
+    <button class="btn-auth" onclick="doLogin()">Entrar 🦫</button>
+    <div class="auth-msg" id="loginMsg"></div>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="registerForm" class="auth-form" style="display:none">
+    <input id="regName" type="text" placeholder="¿Cuál es tu nombre?" maxlength="30">
+    <input id="regUser" type="text" placeholder="Elige un usuario (sin espacios)" maxlength="20" oninput="this.value=this.value.replace(/\s/g,'')">
+    <div class="pw-wrap">
+      <input id="regPass" type="password" placeholder="Contraseña" autocomplete="new-password">
+      <button class="pw-toggle" type="button" onclick="togglePw('regPass',this)">👁️</button>
+    </div>
+    <div class="pw-wrap">
+      <input id="regPass2" type="password" placeholder="Confirmar contraseña" autocomplete="new-password">
+      <button class="pw-toggle" type="button" onclick="togglePw('regPass2',this)">👁️</button>
+    </div>
+    <div class="outfit-section">
+      <div class="outfit-section-title">🎨 Viste a tu capibara</div>
+      <div class="outfit-grid" id="regOutfitGrid">
+        <button class="outfit-btn outfit-none-btn selected" onclick="selectOutfit('none',this)" data-outfit="none">🦫<span>sin outfit</span></button>
+        <button class="outfit-btn" onclick="selectOutfit('alien',this)" data-outfit="alien">👽<span>alien</span></button>
+        <button class="outfit-btn" onclick="selectOutfit('tutu',this)" data-outfit="tutu">🩰<span>tutú</span></button>
+        <button class="outfit-btn" onclick="selectOutfit('tie',this)" data-outfit="tie">👔<span>corbata</span></button>
+        <button class="outfit-btn" onclick="selectOutfit('crown',this)" data-outfit="crown">👑<span>corona</span></button>
+        <button class="outfit-btn" onclick="selectOutfit('astro',this)" data-outfit="astro">🚀<span>astronauta</span></button>
+        <button class="outfit-btn" onclick="selectOutfit('sunglasses',this)" data-outfit="sunglasses">🕶️<span>lentes</span></button>
+        <button class="outfit-btn" onclick="selectOutfit('party',this)" data-outfit="party">🎉<span>fiesta</span></button>
+      </div>
+    </div>
+    <button class="btn-auth" onclick="doRegister()">Crear cuenta 🌱</button>
+    <div class="auth-msg" id="registerMsg"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ MAIN APP ═══════════════ -->
+<div id="mainApp">
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="hname" id="hname">¡Hola!</div>
+        <div class="hsub">Periodo 2026-1</div>
+      </div>
+      <div class="header-right">
+        <button class="hlogout-btn" onclick="doLogout()" title="Cerrar sesión">Salir 👋</button>
+        <div class="hcapy-btn" onclick="openOutfitModal()" title="Cambiar outfit" id="headerCapyBtn">
+          <svg id="headerCapySvg" width="30" height="30" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="50" cy="68" rx="28" ry="20" fill="#c8956b"/>
+            <ellipse cx="50" cy="52" rx="26" ry="22" fill="#d4a574"/>
+            <ellipse cx="50" cy="54" rx="18" ry="16" fill="#d4a574"/>
+            <ellipse cx="43" cy="50" rx="4" ry="4.5" fill="#fff"/>
+            <ellipse cx="57" cy="50" rx="4" ry="4.5" fill="#fff"/>
+            <circle cx="43" cy="51" r="2.5" fill="#1a1a2e"/>
+            <circle cx="57" cy="51" r="2.5" fill="#1a1a2e"/>
+            <circle cx="44" cy="50" r="1" fill="#fff"/>
+            <circle cx="58" cy="50" r="1" fill="#fff"/>
+            <ellipse cx="50" cy="58" rx="6" ry="3" fill="#c8956b"/>
+            <circle cx="36" cy="42" r="3" fill="#e8c4a0"/>
+            <circle cx="64" cy="42" r="3" fill="#e8c4a0"/>
+            <g id="headerOutfitLayer"></g>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div class="stat-strip">
+      <div class="stat"><div class="stat-n" id="hd-mat">—</div><div class="stat-l">Mate</div></div>
+      <div class="stat"><div class="stat-n" id="hd-inf">—</div><div class="stat-l">Info</div></div>
+      <div class="stat"><div class="stat-n" id="hd-len">—</div><div class="stat-l">Lenguaje</div></div>
+      <div class="stat"><div class="stat-n" id="hd-con">—</div><div class="stat-l">Conta</div></div>
+      <div class="stat"><div class="stat-n" id="hd-emp">—</div><div class="stat-l">Emp</div></div>
+    </div>
+  </div>
+
+  <div class="tabs-wrap">
+    <div class="tabs">
+      <button class="tb on" onclick="sw('mat',this)">📐 Matemáticas</button>
+      <button class="tb" onclick="sw('inf',this)">💻 Informática</button>
+      <button class="tb" onclick="sw('len',this)">📖 Lenguaje</button>
+      <button class="tb" onclick="sw('con',this)">📊 Contabilidad</button>
+      <button class="tb" onclick="sw('emp',this)">🏢 Cs. Empresariales</button>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- MAT -->
+    <div id="mat" class="panel on">
+      <div class="sec-title">Prácticas calificadas <span style="font-weight:600;opacity:.6;font-size:9px">(ponderadas 2,2,3,3 → Nota de Trabajo 50%)</span></div>
+      <div class="card">
+        <div class="two">
+          <div class="gfield"><label>PC1</label><input id="m1" type="number" min="0" max="20" step=".5" oninput="cM()" placeholder="0–20"><span class="min-hint-label" id="hint-m1"></span></div>
+          <div class="gfield"><label>PC2</label><input id="m2" type="number" min="0" max="20" step=".5" oninput="cM()" placeholder="0–20"><span class="min-hint-label" id="hint-m2"></span></div>
+          <div class="gfield"><label>PC3</label><input id="m3" type="number" min="0" max="20" step=".5" oninput="cM()" placeholder="0–20"><span class="min-hint-label" id="hint-m3"></span></div>
+          <div class="gfield"><label>PC4</label><input id="m4" type="number" min="0" max="20" step=".5" oninput="cM()" placeholder="0–20"><span class="min-hint-label" id="hint-m4"></span></div>
+        </div>
+      </div>
+      <div class="sec-title">Exámenes</div>
+      <div class="card">
+        <div class="two">
+          <div class="gfield"><label>Parcial (20%)</label><input id="mep" type="number" min="0" max="20" step=".5" oninput="cM()" placeholder="0–20"><span class="min-hint-label" id="hint-mep"></span></div>
+          <div class="gfield"><label>Final (30%)</label><input id="mef" type="number" min="0" max="20" step=".5" oninput="cM()" placeholder="0–20"><span class="min-hint-label" id="hint-mef"></span></div>
+        </div>
+      </div>
+      <div class="sec-title">Lo que te falta</div>
+      <div id="m-needs"></div>
+      <div class="pf-card">
+        <div><div class="pf-label">Promedio final estimado</div><div class="pf-sub" id="m-pfb"></div></div>
+        <div class="pf-val" id="m-pf">—</div>
+      </div>
+      <div class="prog-wrap"><div class="prog" id="m-bar" style="width:0%"></div></div>
+      <button class="btn-grave" onclick="showGrave('mat')">😱 ¿Puedo recuperarme?</button>
+    </div>
+
+    <!-- INF -->
+    <div id="inf" class="panel">
+      <div class="sec-title">Controles <span style="font-weight:600;opacity:.6;font-size:9px">(promedio → 20% de NT)</span></div>
+      <div class="card">
+        <div class="two">
+          <div class="gfield"><label>Control 1</label><input id="ic1" type="number" min="0" max="20" step=".5" oninput="cI()" placeholder="0–20"><span class="min-hint-label" id="hint-ic1"></span></div>
+          <div class="gfield"><label>Control 2</label><input id="ic2" type="number" min="0" max="20" step=".5" oninput="cI()" placeholder="0–20"><span class="min-hint-label" id="hint-ic2"></span></div>
+          <div class="gfield"><label>Control 3</label><input id="ic3" type="number" min="0" max="20" step=".5" oninput="cI()" placeholder="0–20"><span class="min-hint-label" id="hint-ic3"></span></div>
+        </div>
+      </div>
+      <div class="sec-title">Prácticas calificadas <span style="font-weight:600;opacity:.6;font-size:9px">(PC1 35%, PC2 45% de NT)</span></div>
+      <div class="card">
+        <div class="two">
+          <div class="gfield"><label>PC1 (35%)</label><input id="ipc1" type="number" min="0" max="20" step=".5" oninput="cI()" placeholder="0–20"><span class="min-hint-label" id="hint-ipc1"></span></div>
+          <div class="gfield"><label>PC2 (45%)</label><input id="ipc2" type="number" min="0" max="20" step=".5" oninput="cI()" placeholder="0–20"><span class="min-hint-label" id="hint-ipc2"></span></div>
+        </div>
+      </div>
+      <div class="sec-title">Exámenes</div>
+      <div class="card">
+        <div class="two">
+          <div class="gfield"><label>Parcial (30%)</label><input id="iep" type="number" min="0" max="20" step=".5" oninput="cI()" placeholder="0–20"><span class="min-hint-label" id="hint-iep"></span></div>
+          <div class="gfield"><label>Final (35%)</label><input id="ief" type="number" min="0" max="20" step=".5" oninput="cI()" placeholder="0–20"><span class="min-hint-label" id="hint-ief"></span></div>
+        </div>
+      </div>
+      <div class="sec-title">Lo que te falta</div>
+      <div id="i-needs"></div>
+      <div class="pf-card">
+        <div><div class="pf-label">Promedio final estimado</div><div class="pf-sub" id="i-pfb"></div></div>
+        <div class="pf-val" id="i-pf">—</div>
+      </div>
+      <div class="prog-wrap"><div class="prog" id="i-bar" style="width:0%"></div></div>
+      <button class="btn-grave" onclick="showGrave('inf')">😱 ¿Puedo recuperarme?</button>
+    </div>
+
+    <!-- LEN -->
+    <div id="len" class="panel">
+      <div class="sec-title">Prácticas calificadas <span style="font-weight:600;opacity:.6;font-size:9px">(promedio → 40%)</span></div>
+      <div class="card">
+        <div class="two">
+          <div class="gfield"><label>PC1</label><input id="lp1" type="number" min="0" max="20" step=".5" oninput="cL()" placeholder="0–20"><span class="min-hint-label" id="hint-lp1"></span></div>
+          <div class="gfield"><label>PC2</label><input id="lp2" type="number" min="0" max="20" step=".5" oninput="cL()" placeholder="0–20"><span class="min-hint-label" id="hint-lp2"></span></div>
+          <div class="gfield"><label>PC3</label><input id="lp3" type="number" min="0" max="20" step=".5" oninput="cL()" placeholder="0–20"><span class="min-hint-label" id="hint-lp3"></span></div>
+        </div>
+      </div>
+      <div class="sec-title">Exámenes</div>
+      <div class="card">
+        <div class="two">
+          <div class="gfield"><label>Parcial (30%)</label><input id="lep" type="number" min="0" max="20" step=".5" oninput="cL()" placeholder="0–20"><span class="min-hint-label" id="hint-lep"></span></div>
+          <div class="gfield"><label>Final (30%)</label><input id="lef" type="number" min="0" max="20" step=".5" oninput="cL()" placeholder="0–20"><span class="min-hint-label" id="hint-lef"></span></div>
+        </div>
+      </div>
+      <div class="sec-title">Lo que te falta</div>
+      <div id="l-needs"></div>
+      <div class="pf-card">
+        <div><div class="pf-label">Promedio final estimado</div><div class="pf-sub" id="l-pfb"></div></div>
+        <div class="pf-val" id="l-pf">—</div>
+      </div>
+      <div class="prog-wrap"><div class="prog" id="l-bar" style="width:0%"></div></div>
+      <button class="btn-grave" onclick="showGrave('len')">😱 ¿Puedo recuperarme?</button>
+    </div>
+
+    <!-- CON -->
+    <div id="con" class="panel">
+      <div class="sec-title">Controles de lectura <span style="font-weight:600;opacity:.6;font-size:9px">(promedio → 25% de NT)</span></div>
+      <div class="card">
+        <div class="two">
+          <div class="gfield"><label>CL1</label><input id="ccl1" type="number" min="0" max="20" step=".5" oninput="cC()" placeholder="0–20"><span class="min-hint-label" id="hint-ccl1"></span></div>
+          <div class="gfield"><label>CL2</label><input id="ccl2" type="number" min="0" max="20" step=".5" oninput="cC()" placeholder="0–20"><span class="min-hint-label" id="hint-ccl2"></span></div>
+        </div>
+      </div>
+      <div class="sec-title">Prácticas calificadas <span style="font-weight:600;opacity:.6;font-size:9px">(promedio → 70% de NT)</span></div>
+      <div class="card">
+        <div class="two">
+          <div class="gfield"><label>PC1</label><input id="cp1" type="number" min="0" max="20" step=".5" oninput="cC()" placeholder="0–20"><span class="min-hint-label" id="hint-cp1"></span></div>
+          <div class="gfield"><label>PC2</label><input id="cp2" type="number" min="0" max="20" step=".5" oninput="cC()" placeholder="0–20"><span class="min-hint-label" id="hint-cp2"></span></div>
+          <div class="gfield"><label>PC3</label><input id="cp3" type="number" min="0" max="20" step=".5" oninput="cC()" placeholder="0–20"><span class="min-hint-label" id="hint-cp3"></span></div>
+          <div class="gfield"><label>PC4</label><input id="cp4" type="number" min="0" max="20" step=".5" oninput="cC()" placeholder="0–20"><span class="min-hint-label" id="hint-cp4"></span></div>
+          <div class="gfield"><label>PC5</label><input id="cp5" type="number" min="0" max="20" step=".5" oninput="cC()" placeholder="0–20"><span class="min-hint-label" id="hint-cp5"></span></div>
+        </div>
+      </div>
+      <div class="sec-title">Participación y exámenes</div>
+      <div class="card">
+        <div class="two">
+          <div class="gfield"><label>Participación (5%)</label><input id="cprt" type="number" min="0" max="20" step=".5" oninput="cC()" placeholder="0–20"><span class="min-hint-label" id="hint-cprt"></span></div>
+          <div class="gfield"><label>Parcial (30%)</label><input id="cep" type="number" min="0" max="20" step=".5" oninput="cC()" placeholder="0–20"><span class="min-hint-label" id="hint-cep"></span></div>
+        </div>
+        <div style="margin-top:10px">
+          <div class="gfield"><label>Final (30%)</label><input id="cef" type="number" min="0" max="20" step=".5" oninput="cC()" placeholder="0–20"><span class="min-hint-label" id="hint-cef"></span></div>
+        </div>
+      </div>
+      <div class="sec-title">Lo que te falta</div>
+      <div id="c-needs"></div>
+      <div class="pf-card">
+        <div><div class="pf-label">Promedio final estimado</div><div class="pf-sub" id="c-pfb"></div></div>
+        <div class="pf-val" id="c-pf">—</div>
+      </div>
+      <div class="prog-wrap"><div class="prog" id="c-bar" style="width:0%"></div></div>
+      <button class="btn-grave" onclick="showGrave('con')">😱 ¿Puedo recuperarme?</button>
+    </div>
+
+    <!-- EMP -->
+    <div id="emp" class="panel">
+      <div class="sec-title">Controles de lectura <span style="font-weight:600;opacity:.6;font-size:9px">(promedio → 20%)</span></div>
+      <div class="card">
+        <div class="two">
+          <div class="gfield"><label>CL1</label><input id="ecl1" type="number" min="0" max="20" step=".5" oninput="cE()" placeholder="0–20"><span class="min-hint-label" id="hint-ecl1"></span></div>
+          <div class="gfield"><label>CL2</label><input id="ecl2" type="number" min="0" max="20" step=".5" oninput="cE()" placeholder="0–20"><span class="min-hint-label" id="hint-ecl2"></span></div>
+          <div class="gfield"><label>CL3</label><input id="ecl3" type="number" min="0" max="20" step=".5" oninput="cE()" placeholder="0–20"><span class="min-hint-label" id="hint-ecl3"></span></div>
+          <div class="gfield"><label>CL4</label><input id="ecl4" type="number" min="0" max="20" step=".5" oninput="cE()" placeholder="0–20"><span class="min-hint-label" id="hint-ecl4"></span></div>
+        </div>
+      </div>
+      <div class="sec-title">Participación y avance del trabajo final</div>
+      <div class="card">
+        <div class="two">
+          <div class="gfield"><label>Participación (10%)</label><input id="eprt" type="number" min="0" max="20" step=".5" oninput="cE()" placeholder="0–20"><span class="min-hint-label" id="hint-eprt"></span></div>
+          <div class="gfield"><label>Avance TF grupal (5%)</label><input id="eatg" type="number" min="0" max="20" step=".5" oninput="cE()" placeholder="0–20"><span class="min-hint-label" id="hint-eatg"></span></div>
+          <div class="gfield"><label>Avance TF individual (5%)</label><input id="eati" type="number" min="0" max="20" step=".5" oninput="cE()" placeholder="0–20"><span class="min-hint-label" id="hint-eati"></span></div>
+        </div>
+      </div>
+      <div class="sec-title">Examen parcial</div>
+      <div class="card">
+        <div class="two">
+          <div class="gfield"><label>Parcial (25%)</label><input id="eep" type="number" min="0" max="20" step=".5" oninput="cE()" placeholder="0–20"><span class="min-hint-label" id="hint-eep"></span></div>
+        </div>
+      </div>
+      <div class="sec-title">Trabajo final y examen final</div>
+      <div class="card">
+        <div class="two">
+          <div class="gfield"><label>TF escrito grupal (5%)</label><input id="etfg" type="number" min="0" max="20" step=".5" oninput="cE()" placeholder="0–20"><span class="min-hint-label" id="hint-etfg"></span></div>
+          <div class="gfield"><label>Exposición TF (10%)</label><input id="etfe" type="number" min="0" max="20" step=".5" oninput="cE()" placeholder="0–20"><span class="min-hint-label" id="hint-etfe"></span></div>
+          <div class="gfield"><label>Examen final escrito (20%)</label><input id="eef" type="number" min="0" max="20" step=".5" oninput="cE()" placeholder="0–20"><span class="min-hint-label" id="hint-eef"></span></div>
+        </div>
+      </div>
+      <div class="sec-title">Lo que te falta</div>
+      <div id="e-needs"></div>
+      <div class="pf-card">
+        <div><div class="pf-label">Promedio final estimado</div><div class="pf-sub" id="e-pfb"></div></div>
+        <div class="pf-val" id="e-pf">—</div>
+      </div>
+      <div class="prog-wrap"><div class="prog" id="e-bar" style="width:0%"></div></div>
+      <button class="btn-grave" onclick="showGrave('emp')">😱 ¿Puedo recuperarme?</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODO GRAVE OVERLAY -->
+<div id="graveOverlay" onclick="closeGrave(event)">
+  <div class="grave-sheet" style="position:relative">
+    <button class="btn-close-grave" onclick="closeGrave()">×</button>
+    <div class="grave-title" id="graveTitle">😱 ¿Puedo recuperarme?</div>
+    <div class="grave-sub" id="graveSub">Cálculo de supervivencia para este curso</div>
+    <div id="graveContent"></div>
+  </div>
+</div>
+
+<!-- CAPIBARA FLOTANTE -->
+<div id="capyFloat">
+  <div class="capy-bubble" id="capyBubble">¡Pon tus notas! 🌿</div>
+  <div class="capy-svg-wrap" id="capySvgWrap">
+    <svg id="capySvgNeutral" width="80" height="88" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="50" cy="88" rx="28" ry="18" fill="#c8956b"/>
+      <ellipse cx="50" cy="68" rx="26" ry="24" fill="#d4a574"/>
+      <ellipse cx="38" cy="56" rx="10" ry="8" fill="#d4a574"/>
+      <ellipse cx="62" cy="56" rx="10" ry="8" fill="#d4a574"/>
+      <ellipse cx="38" cy="55" rx="7" ry="5.5" fill="#c8956b"/>
+      <ellipse cx="62" cy="55" rx="7" ry="5.5" fill="#c8956b"/>
+      <ellipse cx="50" cy="70" rx="20" ry="18" fill="#d4a574"/>
+      <ellipse cx="42" cy="66" rx="4.5" ry="5" fill="#fff"/>
+      <ellipse cx="58" cy="66" rx="4.5" ry="5" fill="#fff"/>
+      <circle cx="42" cy="67" r="2.8" fill="#1a1a2e"/>
+      <circle cx="58" cy="67" r="2.8" fill="#1a1a2e"/>
+      <circle cx="43" cy="66" r="1.1" fill="#fff"/>
+      <circle cx="59" cy="66" r="1.1" fill="#fff"/>
+      <ellipse cx="50" cy="76" rx="6" ry="3" fill="#c8956b"/>
+      <ellipse cx="47.5" cy="75" rx="2.2" ry="1.8" fill="#b07040"/>
+      <ellipse cx="52.5" cy="75" rx="2.2" ry="1.8" fill="#b07040"/>
+      <circle cx="36" cy="58" r="3.5" fill="#e8c4a0" opacity=".6"/>
+      <circle cx="64" cy="58" r="3.5" fill="#e8c4a0" opacity=".6"/>
+      <ellipse cx="28" cy="76" rx="8" ry="5" fill="#d4a574" transform="rotate(-35 28 76)"/>
+      <ellipse cx="72" cy="76" rx="8" ry="5" fill="#d4a574" transform="rotate(35 72 76)"/>
+      <ellipse cx="20" cy="66" rx="6.5" ry="4.5" fill="#d4a574" transform="rotate(-45 20 66)"/>
+      <ellipse cx="80" cy="66" rx="6.5" ry="4.5" fill="#d4a574" transform="rotate(45 80 66)"/>
+      <ellipse cx="40" cy="102" rx="7" ry="9" fill="#c8956b"/>
+      <ellipse cx="60" cy="102" rx="7" ry="9" fill="#c8956b"/>
+    </svg>
+    <svg id="capySvgHappy" width="80" height="88" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg" style="display:none">
+      <ellipse cx="50" cy="88" rx="28" ry="18" fill="#c8956b"/>
+      <ellipse cx="50" cy="68" rx="26" ry="24" fill="#d4a574"/>
+      <ellipse cx="38" cy="56" rx="10" ry="8" fill="#d4a574"/>
+      <ellipse cx="62" cy="56" rx="10" ry="8" fill="#d4a574"/>
+      <ellipse cx="38" cy="55" rx="7" ry="5.5" fill="#c8956b"/>
+      <ellipse cx="62" cy="55" rx="7" ry="5.5" fill="#c8956b"/>
+      <ellipse cx="50" cy="70" rx="20" ry="18" fill="#d4a574"/>
+      <path d="M38 65 Q42 61 46 65" stroke="#1a1a2e" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M54 65 Q58 61 62 65" stroke="#1a1a2e" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M44 76 Q50 82 56 76" stroke="#b07040" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <ellipse cx="47.5" cy="75" rx="2.2" ry="1.8" fill="#b07040"/>
+      <ellipse cx="52.5" cy="75" rx="2.2" ry="1.8" fill="#b07040"/>
+      <circle cx="36" cy="58" r="3.5" fill="#e8c4a0" opacity=".8"/>
+      <circle cx="64" cy="58" r="3.5" fill="#e8c4a0" opacity=".8"/>
+      <ellipse cx="24" cy="68" rx="8" ry="5" fill="#d4a574" transform="rotate(-50 24 68)"/>
+      <ellipse cx="76" cy="68" rx="8" ry="5" fill="#d4a574" transform="rotate(50 76 68)"/>
+      <ellipse cx="16" cy="56" rx="6.5" ry="4.5" fill="#d4a574" transform="rotate(-55 16 56)"/>
+      <ellipse cx="84" cy="56" rx="6.5" ry="4.5" fill="#d4a574" transform="rotate(55 84 56)"/>
+      <ellipse cx="40" cy="102" rx="7" ry="9" fill="#c8956b"/>
+      <ellipse cx="60" cy="102" rx="7" ry="9" fill="#c8956b"/>
+      <circle cx="20" cy="30" r="3" fill="#FF9EC7"/>
+      <circle cx="80" cy="25" r="3" fill="#FFB347"/>
+      <rect x="30" y="20" width="5" height="5" fill="#7DBF8E" transform="rotate(30 30 20)"/>
+      <rect x="65" y="18" width="5" height="5" fill="#F0C060" transform="rotate(15 65 18)"/>
+    </svg>
+    <svg id="capySvgScared" width="80" height="88" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg" style="display:none">
+      <ellipse cx="50" cy="88" rx="28" ry="18" fill="#c8956b"/>
+      <ellipse cx="50" cy="68" rx="26" ry="24" fill="#d4a574"/>
+      <ellipse cx="38" cy="56" rx="10" ry="8" fill="#d4a574"/>
+      <ellipse cx="62" cy="56" rx="10" ry="8" fill="#d4a574"/>
+      <ellipse cx="50" cy="70" rx="20" ry="18" fill="#d4a574"/>
+      <ellipse cx="42" cy="66" rx="6" ry="6.5" fill="#fff"/>
+      <ellipse cx="58" cy="66" rx="6" ry="6.5" fill="#fff"/>
+      <circle cx="42" cy="67" r="3.8" fill="#1a1a2e"/>
+      <circle cx="58" cy="67" r="3.8" fill="#1a1a2e"/>
+      <circle cx="43" cy="65.5" r="1.4" fill="#fff"/>
+      <circle cx="59" cy="65.5" r="1.4" fill="#fff"/>
+      <path d="M44 78 Q50 74 56 78" stroke="#b07040" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <ellipse cx="50" cy="88" rx="28" ry="18" fill="#c8956b"/>
+      <ellipse cx="28" cy="72" rx="9" ry="6" fill="#d4a574" transform="rotate(20 28 72)"/>
+      <ellipse cx="72" cy="72" rx="9" ry="6" fill="#d4a574" transform="rotate(-20 72 72)"/>
+      <ellipse cx="36" cy="68" rx="7" ry="5" fill="#d4a574" transform="rotate(10 36 68)"/>
+      <ellipse cx="64" cy="68" rx="7" ry="5" fill="#d4a574" transform="rotate(-10 64 68)"/>
+      <ellipse cx="40" cy="102" rx="7" ry="9" fill="#c8956b"/>
+      <ellipse cx="60" cy="102" rx="7" ry="9" fill="#c8956b"/>
+      <ellipse cx="72" cy="50" rx="3" ry="4" fill="#B5D4F4" opacity=".8"/>
+    </svg>
+    <svg id="capySvgSleep" width="80" height="88" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg" style="display:none">
+      <ellipse cx="50" cy="88" rx="28" ry="18" fill="#c8956b"/>
+      <ellipse cx="50" cy="68" rx="26" ry="24" fill="#d4a574"/>
+      <ellipse cx="38" cy="56" rx="10" ry="8" fill="#d4a574"/>
+      <ellipse cx="62" cy="56" rx="10" ry="8" fill="#d4a574"/>
+      <ellipse cx="50" cy="70" rx="20" ry="18" fill="#d4a574"/>
+      <path d="M38 67 Q42 64 46 67" stroke="#1a1a2e" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M54 67 Q58 64 62 67" stroke="#1a1a2e" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <text x="64" y="40" font-size="10" fill="#B07040" font-family="Nunito,sans-serif" font-weight="800">z</text>
+      <text x="70" y="32" font-size="13" fill="#B07040" font-family="Nunito,sans-serif" font-weight="800">z</text>
+      <text x="78" y="22" font-size="16" fill="#B07040" font-family="Nunito,sans-serif" font-weight="800">z</text>
+      <ellipse cx="32" cy="82" rx="8" ry="5" fill="#d4a574" transform="rotate(20 32 82)"/>
+      <ellipse cx="68" cy="82" rx="8" ry="5" fill="#d4a574" transform="rotate(-20 68 82)"/>
+      <ellipse cx="40" cy="102" rx="7" ry="9" fill="#c8956b"/>
+      <ellipse cx="60" cy="102" rx="7" ry="9" fill="#c8956b"/>
+    </svg>
+  </div>
+</div>
+
+<!-- OUTFIT MODAL -->
+<div id="outfitModal" onclick="if(event.target===this)closeOutfitModal()">
+  <div class="outfit-sheet">
+    <button class="btn-close-outfit" onclick="closeOutfitModal()">×</button>
+    <div class="outfit-sheet-title">🎨 Outfit de tu capi</div>
+    <div class="outfit-sheet-sub">Toca un accesorio para cambiar el look</div>
+    <div style="display:flex;justify-content:center;margin:0 0 16px">
+      <svg id="outfitPreviewSvg" width="90" height="90" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="50" cy="88" rx="28" ry="18" fill="#c8956b"/>
+        <ellipse cx="50" cy="68" rx="26" ry="24" fill="#d4a574"/>
+        <ellipse cx="38" cy="56" rx="10" ry="8" fill="#d4a574"/>
+        <ellipse cx="62" cy="56" rx="10" ry="8" fill="#d4a574"/>
+        <ellipse cx="38" cy="55" rx="7" ry="5.5" fill="#c8956b"/>
+        <ellipse cx="62" cy="55" rx="7" ry="5.5" fill="#c8956b"/>
+        <ellipse cx="50" cy="70" rx="20" ry="18" fill="#d4a574"/>
+        <ellipse cx="42" cy="66" rx="4.5" ry="5" fill="#fff"/>
+        <ellipse cx="58" cy="66" rx="4.5" ry="5" fill="#fff"/>
+        <circle cx="42" cy="67" r="2.8" fill="#1a1a2e"/>
+        <circle cx="58" cy="67" r="2.8" fill="#1a1a2e"/>
+        <circle cx="43" cy="66" r="1.1" fill="#fff"/>
+        <circle cx="59" cy="66" r="1.1" fill="#fff"/>
+        <ellipse cx="50" cy="76" rx="6" ry="3" fill="#c8956b"/>
+        <ellipse cx="40" cy="102" rx="7" ry="9" fill="#c8956b"/>
+        <ellipse cx="60" cy="102" rx="7" ry="9" fill="#c8956b"/>
+        <g id="outfitPreviewLayer"></g>
+      </svg>
+    </div>
+    <div class="outfit-grid" id="modalOutfitGrid">
+      <button class="outfit-btn outfit-none-btn" onclick="applyOutfit('none',this)" data-outfit="none">🦫<span>sin outfit</span></button>
+      <button class="outfit-btn" onclick="applyOutfit('alien',this)" data-outfit="alien">👽<span>alien</span></button>
+      <button class="outfit-btn" onclick="applyOutfit('tutu',this)" data-outfit="tutu">🩰<span>tutú</span></button>
+      <button class="outfit-btn" onclick="applyOutfit('tie',this)" data-outfit="tie">👔<span>corbata</span></button>
+      <button class="outfit-btn" onclick="applyOutfit('crown',this)" data-outfit="crown">👑<span>corona</span></button>
+      <button class="outfit-btn" onclick="applyOutfit('astro',this)" data-outfit="astro">🚀<span>astronauta</span></button>
+      <button class="outfit-btn" onclick="applyOutfit('sunglasses',this)" data-outfit="sunglasses">🕶️<span>lentes</span></button>
+      <button class="outfit-btn" onclick="applyOutfit('party',this)" data-outfit="party">🎉<span>fiesta</span></button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+//  STORAGE & USER SYSTEM
+// ════════════════════════════════════════════
+
+const DB_KEY = 'capiometro_db';
+
+function loadDB() {
+  try { return JSON.parse(localStorage.getItem(DB_KEY)) || {}; } catch { return {}; }
+}
+function saveDB(db) {
+  localStorage.setItem(DB_KEY, JSON.stringify(db));
+}
+
+// Hash simple (no criptográfico, suficiente para privacidad básica)
+function hashPass(pass) {
+  let h = 0;
+  for (let i = 0; i < pass.length; i++) { h = (Math.imul(31, h) + pass.charCodeAt(i)) | 0; }
+  return 'h' + Math.abs(h).toString(36);
+}
+
+let currentUser = null;  // username string
+let userName = '';       // display name
+
+// ── AUTH TAB SWITCH ──
+function showAuthTab(tab) {
+  document.getElementById('loginForm').style.display = tab === 'login' ? 'flex' : 'none';
+  document.getElementById('registerForm').style.display = tab === 'register' ? 'flex' : 'none';
+  document.querySelectorAll('.auth-tab').forEach((b, i) => b.classList.toggle('on', (i === 0) === (tab === 'login')));
+  setMsg('loginMsg', ''); setMsg('registerMsg', '');
+}
+
+function setMsg(id, text, isOk) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'auth-msg' + (text ? (isOk ? ' ok' : ' err') : '');
+}
+
+function togglePw(inputId, btn) {
+  const el = document.getElementById(inputId);
+  el.type = el.type === 'password' ? 'text' : 'password';
+  btn.textContent = el.type === 'password' ? '👁️' : '🙈';
+}
+
+// ── ENTER KEY en auth ──
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  if (document.getElementById('loginForm').style.display !== 'none') doLogin();
+  else doRegister();
+});
+
+// ── REGISTRO ──
+function doRegister() {
+  const name = document.getElementById('regName').value.trim();
+  const user = document.getElementById('regUser').value.trim().toLowerCase();
+  const pass = document.getElementById('regPass').value;
+  const pass2 = document.getElementById('regPass2').value;
+
+  if (!name) return setMsg('registerMsg', 'Escribe tu nombre 🦫');
+  if (!user || user.length < 3) return setMsg('registerMsg', 'El usuario debe tener al menos 3 caracteres');
+  if (!/^[a-z0-9_]+$/.test(user)) return setMsg('registerMsg', 'Solo letras, números y guión bajo');
+  if (!pass || pass.length < 4) return setMsg('registerMsg', 'La contraseña debe tener al menos 4 caracteres');
+  if (pass !== pass2) return setMsg('registerMsg', 'Las contraseñas no coinciden 😬');
+
+  const db = loadDB();
+  if (db[user]) return setMsg('registerMsg', 'Ese usuario ya existe, elige otro 🦦');
+
+  db[user] = { name, passHash: hashPass(pass), grades: {}, outfit: selectedOutfit };
+  saveDB(db);
+  setMsg('registerMsg', '¡Cuenta creada! Iniciando sesión... 🎉', true);
+  setTimeout(() => enterApp(user, name), 800);
+}
+
+// ── LOGIN ──
+function doLogin() {
+  const user = document.getElementById('loginUser').value.trim().toLowerCase();
+  const pass = document.getElementById('loginPass').value;
+
+  if (!user || !pass) return setMsg('loginMsg', 'Completa todos los campos 🦫');
+
+  const db = loadDB();
+  if (!db[user]) return setMsg('loginMsg', 'Usuario no encontrado 🔍');
+  if (db[user].passHash !== hashPass(pass)) return setMsg('loginMsg', 'Contraseña incorrecta 🔐');
+
+  enterApp(user, db[user].name);
+}
+
+// ── ENTER APP ──
+function enterApp(user, name) {
+  currentUser = user;
+  userName = name;
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'block';
+  document.getElementById('hname').textContent = '¡Hola, ' + name + '!';
+  document.getElementById('capyFloat').classList.add('show');
+  loadGrades();
+  recalcAll();
+  updateCapy();
+  resetSleepTimer();
+  loadOutfit();
+}
+
+// ── LOGOUT ──
+function doLogout() {
+  currentUser = null;
+  userName = '';
+  currentOutfit = 'none';
+  selectedOutfit = 'none';
+  applyOutfitToCapy();
+  // limpiar inputs
+  ALL_FIELD_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value = ''; el.className = el.className.replace(/\s*g-(green|yellow|red)/g,''); }
+  });
+  allPf = { mat: null, inf: null, len: null, con: null, emp: null };
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('authScreen').style.display = 'flex';
+  // reset campos auth
+  ['loginUser','loginPass','regName','regUser','regPass','regPass2'].forEach(id => { document.getElementById(id).value = ''; });
+  setMsg('loginMsg',''); setMsg('registerMsg','');
+  showAuthTab('login');
+}
+
+// ── SAVE / LOAD GRADES ──
+const ALL_FIELD_IDS = ['m1','m2','m3','m4','mep','mef','ic1','ic2','ic3','ipc1','ipc2','iep','ief','lp1','lp2','lp3','lep','lef','ccl1','ccl2','cp1','cp2','cp3','cp4','cp5','cprt','cep','cef','ecl1','ecl2','ecl3','ecl4','eprt','eatg','eati','eep','etfg','etfe','eef'];
+
+// Definición de campos de Ciencias Empresariales (compartida entre cE() y getCourseData())
+const EMP_FIELDS = [
+  ['eprt',0.10,'Participación en clase'],
+  ['eatg',0.05,'Avance del Trabajo Final (grupal)'],
+  ['eati',0.05,'Avance del Trabajo Final (individual)'],
+  ['eep',0.25,'Examen Parcial'],
+  ['etfg',0.05,'Trabajo Final escrito (grupal)'],
+  ['etfe',0.10,'Exposición del Trabajo Final'],
+  ['eef',0.20,'Examen Final escrito'],
+];
+
+function saveGrades() {
+  if (!currentUser) return;
+  const db = loadDB();
+  if (!db[currentUser]) return;
+  const grades = {};
+  ALL_FIELD_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.value !== '') grades[id] = el.value;
+  });
+  db[currentUser].grades = grades;
+  saveDB(db);
+}
+
+function loadGrades() {
+  if (!currentUser) return;
+  const db = loadDB();
+  const grades = db[currentUser]?.grades || {};
+  ALL_FIELD_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = grades[id] !== undefined ? grades[id] : '';
+  });
+}
+
+// ════════════════════════════════════════════
+//  APP STATE
+// ════════════════════════════════════════════
+
+let allPf = { mat: null, inf: null, len: null, con: null, emp: null };
+let prevAvg = null;
+let sleepTimer = null;
+
+// ── TAB SWITCH ──
+function sw(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tb').forEach(t => t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+
+// ── HELPERS ──
+function g(id) { const e = document.getElementById(id); return e && e.value !== '' ? parseFloat(e.value) : null; }
+function s(id, v) { const el = document.getElementById(id); if (el) el.innerHTML = v; }
+
+function colorInput(id, val) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('g-green', 'g-yellow', 'g-red');
+  if (val === null) return;
+  if (val >= 14) el.classList.add('g-green');
+  else if (val >= 11) el.classList.add('g-yellow');
+  else el.classList.add('g-red');
+}
+
+// ── HINT MÍNIMO POR CAMPO ──
+// Muestra el mínimo que necesitas sacar en ese campo para aprobar,
+// dado lo que ya tienes en los demás campos de esa materia.
+function setHint(id, minVal) {
+  const hint = document.getElementById('hint-' + id);
+  if (!hint) return;
+  const el = document.getElementById(id);
+  if (!el || el.value !== '') { hint.classList.remove('show'); return; }
+  if (minVal === null || minVal === undefined) { hint.classList.remove('show'); return; }
+
+  if (minVal > 20) {
+    // Imposible: aunque saques 20 no llegas a 11
+    hint.textContent = 'ya jalaste 😢';
+    hint.style.background = 'var(--red-bg)';
+    hint.style.color = 'var(--red-dark)';
+  } else if (minVal <= 0) {
+    // Ya está asegurado incluso sacando 0
+    hint.textContent = '¡ya aprobado! ✓';
+    hint.style.background = 'var(--green-bg)';
+    hint.style.color = 'var(--green-dark)';
+  } else if (minVal <= 11) {
+    hint.textContent = 'mín ' + minVal.toFixed(1);
+    hint.style.background = 'var(--green-bg)';
+    hint.style.color = 'var(--green-dark)';
+  } else if (minVal <= 15) {
+    hint.textContent = 'mín ' + minVal.toFixed(1);
+    hint.style.background = 'var(--yellow-bg)';
+    hint.style.color = 'var(--yellow-dark)';
+  } else {
+    hint.textContent = 'mín ' + minVal.toFixed(1);
+    hint.style.background = 'var(--red-bg)';
+    hint.style.color = 'var(--red-dark)';
+  }
+  hint.classList.add('show');
+}
+
+// ── NEEDS RENDER ──
+function needColor(n) {
+  if (n <= 0) return 'ni-done';
+  if (n > 20) return 'ni-impossible';
+  if (n <= 11) return 'ni-green';
+  if (n <= 14) return 'ni-yellow';
+  return 'ni-red';
+}
+function needTip(n) {
+  if (n <= 0) return 'Ya asegurado con lo que llevas ✅';
+  if (n > 20) return '¡Ya jalaste esta nota! Habla con tu profe 😢';
+  if (n <= 11) return 'Manejable, ve tranquilo/a 🙂';
+  if (n <= 14) return 'Necesitas esforzarte un poco más 📖';
+  if (n <= 17) return 'Ponle toda la energía 🔥';
+  return 'Difícil pero no imposible 💪';
+}
+function needVal(n) { return n <= 0 ? '✓' : n > 20 ? 'jalaste 😢' : n.toFixed(1); }
+
+function renderNeeds(containerId, missing, accum) {
+  const box = document.getElementById(containerId);
+  if (!box) return;
+  if (!missing.length) {
+    box.innerHTML = '<div style="background:var(--green-bg);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--green-dark);font-weight:800;">¡Todas las notas registradas! 🎉</div>';
+    return;
+  }
+  let html = '';
+  missing.forEach(({ name, w }) => {
+    const nd = (11 - accum) / w;
+    const cls = needColor(nd);
+    html += `<div class="need-item ${cls}">
+      <div><div class="ni-name">${name}</div><div class="ni-tip">${needTip(nd)}</div></div>
+      <div class="ni-val">${needVal(nd)}</div>
+    </div>`;
+  });
+  box.innerHTML = html;
+}
+
+// ── UPDATE BAR ──
+function updateBar(barId, pfId, pfbId, pf, accum) {
+  const bar = document.getElementById(barId);
+  const pct = pf !== null ? Math.min(100,(pf/20)*100) : Math.min(100,(accum/20)*100*0.7);
+  if (bar) {
+    bar.style.width = pct + '%';
+    bar.style.background = pf===null?'var(--brown-light)':pf>=15?'var(--green)':pf>=11?'var(--yellow)':'var(--red)';
+  }
+  const badge = pf===null?'':pf>=15?'<span class="badge b-ok">excelente</span>':pf>=11?'<span class="badge b-ok">aprobado</span>':pf>=9?'<span class="badge b-w">en riesgo</span>':'<span class="badge b-bad">jalado</span>';
+  s(pfId, pf!==null ? pf.toFixed(1)+badge : (accum>0?'~'+accum.toFixed(1):'—'));
+  const pfbEl = document.getElementById(pfbId);
+  if (pfbEl) pfbEl.textContent = pf!==null
+    ? (pf>=15?'¡Estás arrasando! 🌟':pf>=13?'¡Muy bien, sigue así!':pf>=11?'Aprobado, no bajes la guardia':pf>=9?'Muy justo, necesitas mejorar':'Necesitas subir tus notas')
+    : 'Proyección parcial (faltan notas)';
+}
+
+// ════════════════════════════════════════════
+//  CALCULAR MATERIAS  — con hints por campo
+// ════════════════════════════════════════════
+
+// Matemáticas: NT = promedio ponderado (2,2,3,3) → 50%; Parcial 20%; Final 30%
+function cM() {
+  const ids = ['m1','m2','m3','m4'];
+  const weights = [2,2,3,3];
+  const totalW = weights.reduce((a,b)=>a+b,0); // 10
+  ids.forEach((id,i) => colorInput(id, g(id)));
+  const pcs = ids.map(g);
+  let ntPartial=0, ntW=0;
+  pcs.forEach((v,i)=>{ if(v!==null){ntPartial+=weights[i]*v;ntW+=weights[i];} });
+  const ntEst = ntW>0 ? ntPartial/ntW : null;
+  const [ep,ef] = [g('mep'),g('mef')];
+  [ep,ef].forEach((v,i)=>colorInput(['mep','mef'][i],v));
+
+  let accum=0, missing=[];
+  const ntMissing = pcs.filter(x=>x!==null).length<4;
+  if(!ntMissing&&ntEst!==null) accum+=0.5*ntEst;
+  else { if(ntEst!==null) accum+=0.5*ntEst; missing.push({name:'Nota de Trabajo (PCs faltantes)',w:0.5}); }
+  if(ep!==null) accum+=0.2*ep; else missing.push({name:'Parcial',w:0.2});
+  if(ef!==null) accum+=0.3*ef; else missing.push({name:'Final',w:0.3});
+
+  // ── HINTS por campo ──
+  // Para cada PC vacía: calcular qué NT necesitas → cuánto aporta esa PC al NT
+  // NeedNT = (11 - accum_sin_NT) / 0.5  si NT faltante, si no = ntEst
+  const accumNoNT = (ep!==null?0.2*ep:0)+(ef!==null?0.3*ef:0);
+  const needNT = (11 - accumNoNT) / 0.5; // NT necesaria para aprobar dado ep/ef
+  ids.forEach((id,i)=>{
+    if(g(id)!==null){setHint(id,null);return;}
+    // cuánto debo sacar en esta PC para que el NT sea needNT
+    // NT = (sum_known + w_i*x) / totalW => x = (needNT*totalW - ntPartial) / weights[i]
+    const minPC = weights[i]>0 ? (needNT*totalW - ntPartial) / weights[i] : null;
+    setHint(id, minPC);
+  });
+  // Hints para parcial y final
+  if(ep===null){
+    // sin ep: accum_sin_ep = 0.5*ntEst(o contrib) + 0.3*ef(si hay)
+    const accumSinEp = (ntMissing?0:0.5*ntEst||0)+(ef!==null?0.3*ef:0);
+    setHint('mep', (11-accumSinEp)/0.2);
+  } else setHint('mep',null);
+  if(ef===null){
+    const accumSinEf = (ntMissing?0:0.5*ntEst||0)+(ep!==null?0.2*ep:0);
+    setHint('mef', (11-accumSinEf)/0.3);
+  } else setHint('mef',null);
+
+  const allIn = !ntMissing && ep!==null && ef!==null;
+  const pf = allIn ? Math.round(accum*10)/10 : null;
+  allPf.mat = pf;
+  renderNeeds('m-needs', missing, accum);
+  updateBar('m-bar','m-pf','m-pfb', pf, accum);
+  updateHeader();
+  saveGrades();
+  resetSleepTimer();
+}
+
+// Informática: NT = PC1*35% + PC2*45% + prom(controles)*20% → NT pesa 35%; Parcial 30%; Final 35%
+function cI() {
+  const cs = [g('ic1'),g('ic2'),g('ic3')];
+  cs.forEach((v,i)=>colorInput(['ic1','ic2','ic3'][i],v));
+  const validCs = cs.filter(x=>x!==null);
+  const pc = validCs.length ? validCs.reduce((a,b)=>a+b,0)/validCs.length : null;
+  const [pc1,pc2,ep,ef]=[g('ipc1'),g('ipc2'),g('iep'),g('ief')];
+  [pc1,pc2,ep,ef].forEach((v,i)=>colorInput(['ipc1','ipc2','iep','ief'][i],v));
+
+  let ntAccum=0;
+  if(pc1!==null) ntAccum+=0.35*pc1;
+  if(pc2!==null) ntAccum+=0.45*pc2;
+  if(pc!==null)  ntAccum+=0.20*pc;
+  const ntFull = pc1!==null && pc2!==null && validCs.length>0;
+  const nt = ntFull ? (0.35*pc1+0.45*pc2+0.20*pc) : null;
+
+  let accum=0, missing=[];
+  if(ntFull) accum+=0.35*nt;
+  else { accum+=0.35*ntAccum; missing.push({name:'Nota de Trabajo (sub-notas faltantes)',w:0.35}); }
+  if(ep!==null) accum+=0.30*ep; else missing.push({name:'Parcial',w:0.30});
+  if(ef!==null) accum+=0.35*ef; else missing.push({name:'Final',w:0.35});
+
+  // ── HINTS ──
+  // Necesito que NT sea: needNT = (11 - accumSinNT) / 0.35
+  const accumSinNT = (ep!==null?0.30*ep:0)+(ef!==null?0.35*ef:0);
+  const needNT = (11-accumSinNT)/0.35;
+  // PC1: needNT = 0.35*PC1 + 0.45*(pc2 o 0) + 0.20*(pc o 0)  → PC1 = (needNT - resto) / 0.35
+  if(pc1===null) { const minPC1=(needNT-(pc2!==null?0.45*pc2:0)-(pc!==null?0.20*pc:0))/0.35; setHint('ipc1',minPC1); } else setHint('ipc1',null);
+  if(pc2===null) { const minPC2=(needNT-(pc1!==null?0.35*pc1:0)-(pc!==null?0.20*pc:0))/0.45; setHint('ipc2',minPC2); } else setHint('ipc2',null);
+  // Controles: cada control desconocido — suponiendo que los demás controles son el promedio actual
+  const cCount=3;
+  cs.forEach((v,i)=>{
+    if(v!==null){setHint(['ic1','ic2','ic3'][i],null);return;}
+    // necesito prom_controles = X, tengo los que hay, faltan algunos
+    // Si hay N controles conocidos: prom = (sum_known + x*(cCount-N)) / cCount = needPC
+    // needPC = (needNT - (pc1!==null?0.35*pc1:0) - (pc2!==null?0.45*pc2:0)) / 0.20
+    const needPC = (needNT-(pc1!==null?0.35*pc1:0)-(pc2!==null?0.45*pc2:0))/0.20;
+    const knownSum = cs.reduce((a,x)=>x!==null?a+x:a,0);
+    const missingCount = cs.filter(x=>x===null).length;
+    const minC = missingCount>0?(needPC*cCount - knownSum)/missingCount:null;
+    setHint(['ic1','ic2','ic3'][i], minC);
+  });
+  if(ep===null){ const accumSinEp=(ntFull?0.35*nt:0.35*ntAccum)+(ef!==null?0.35*ef:0); setHint('iep',(11-accumSinEp)/0.30); } else setHint('iep',null);
+  if(ef===null){ const accumSinEf=(ntFull?0.35*nt:0.35*ntAccum)+(ep!==null?0.30*ep:0); setHint('ief',(11-accumSinEf)/0.35); } else setHint('ief',null);
+
+  const allIn = ntFull && ep!==null && ef!==null;
+  const pf = allIn ? Math.round((0.35*nt+0.30*ep+0.35*ef)*10)/10 : null;
+  allPf.inf = pf;
+  renderNeeds('i-needs', missing, accum);
+  updateBar('i-bar','i-pf','i-pfb', pf, accum);
+  updateHeader();
+  saveGrades();
+  resetSleepTimer();
+}
+
+// Lenguaje: prom(PCs)*40%; Parcial 30%; Final 30%
+function cL() {
+  const ps=[g('lp1'),g('lp2'),g('lp3')];
+  ps.forEach((v,i)=>colorInput(['lp1','lp2','lp3'][i],v));
+  const validPs=ps.filter(x=>x!==null);
+  const pp=validPs.length?validPs.reduce((a,b)=>a+b,0)/validPs.length:null;
+  const [ep,ef]=[g('lep'),g('lef')];
+  [ep,ef].forEach((v,i)=>colorInput(['lep','lef'][i],v));
+
+  let accum=0,missing=[];
+  if(pp!==null) accum+=0.40*pp; else missing.push({name:'Prácticas faltantes',w:0.40});
+  if(ep!==null) accum+=0.30*ep; else missing.push({name:'Parcial',w:0.30});
+  if(ef!==null) accum+=0.30*ef; else missing.push({name:'Final',w:0.30});
+
+  // ── HINTS ──
+  const needPP = (11-(ep!==null?0.30*ep:0)-(ef!==null?0.30*ef:0))/0.40;
+  const pcCount=3;
+  ps.forEach((v,i)=>{
+    if(v!==null){setHint(['lp1','lp2','lp3'][i],null);return;}
+    const knownSum=ps.reduce((a,x)=>x!==null?a+x:a,0);
+    const missingCount=ps.filter(x=>x===null).length;
+    setHint(['lp1','lp2','lp3'][i], missingCount>0?(needPP*pcCount-knownSum)/missingCount:null);
+  });
+  if(ep===null){ const a=(pp!==null?0.40*pp:0)+(ef!==null?0.30*ef:0); setHint('lep',(11-a)/0.30); } else setHint('lep',null);
+  if(ef===null){ const a=(pp!==null?0.40*pp:0)+(ep!==null?0.30*ep:0); setHint('lef',(11-a)/0.30); } else setHint('lef',null);
+
+  const allIn=ps.filter(x=>x!==null).length===3&&ep!==null&&ef!==null;
+  const pf=allIn?Math.round(accum*10)/10:null;
+  allPf.len=pf;
+  renderNeeds('l-needs',missing,accum);
+  updateBar('l-bar','l-pf','l-pfb',pf,accum);
+  updateHeader();
+  saveGrades();
+  resetSleepTimer();
+}
+
+// Contabilidad: NT = prom(CL)*25% + prom(PC)*70% + Participación*5% → NT 40%; Parcial 30%; Final 30%
+function cC() {
+  const cls=[g('ccl1'),g('ccl2')];
+  cls.forEach((v,i)=>colorInput(['ccl1','ccl2'][i],v));
+  const validCls=cls.filter(x=>x!==null);
+  const rcl=validCls.length?validCls.reduce((a,b)=>a+b,0)/validCls.length:null;
+
+  const pcs=[g('cp1'),g('cp2'),g('cp3'),g('cp4'),g('cp5')];
+  pcs.forEach((v,i)=>colorInput(['cp1','cp2','cp3','cp4','cp5'][i],v));
+  const validPcs=pcs.filter(x=>x!==null);
+  const rpc=validPcs.length?validPcs.reduce((a,b)=>a+b,0)/validPcs.length:null;
+
+  const [prt,ep,ef]=[g('cprt'),g('cep'),g('cef')];
+  [prt,ep,ef].forEach((v,i)=>colorInput(['cprt','cep','cef'][i],v));
+
+  let tParts=0;
+  if(rcl!==null) tParts+=0.25*rcl;
+  if(rpc!==null) tParts+=0.70*rpc;
+  if(prt!==null) tParts+=0.05*prt;
+  const rtFull=rcl!==null&&rpc!==null&&prt!==null;
+  const rt=rtFull?(0.25*rcl+0.70*rpc+0.05*prt):null;
+
+  let accum=0,missing=[];
+  accum+=0.40*(rt!==null?rt:tParts);
+  if(!rtFull) missing.push({name:'Nota de Trabajo (sub-notas faltantes)',w:0.40});
+  if(ep!==null) accum+=0.30*ep; else missing.push({name:'Parcial',w:0.30});
+  if(ef!==null) accum+=0.30*ef; else missing.push({name:'Final',w:0.30});
+
+  // ── HINTS ──
+  const accumSinNT=(ep!==null?0.30*ep:0)+(ef!==null?0.30*ef:0);
+  const needRT=(11-accumSinNT)/0.40;
+  // CL: necesito rcl tal que 0.25*rcl+0.70*(rpc o 0)+0.05*(prt o 0) = needRT
+  const needRcl=(needRT-(rpc!==null?0.70*rpc:0)-(prt!==null?0.05*prt:0))/0.25;
+  cls.forEach((v,i)=>{
+    if(v!==null){setHint(['ccl1','ccl2'][i],null);return;}
+    const knownSum=cls.reduce((a,x)=>x!==null?a+x:a,0);
+    const mc=cls.filter(x=>x===null).length;
+    setHint(['ccl1','ccl2'][i], mc>0?(needRcl*2-knownSum)/mc:null);
+  });
+  // PC
+  const needRpc=(needRT-(rcl!==null?0.25*rcl:0)-(prt!==null?0.05*prt:0))/0.70;
+  pcs.forEach((v,i)=>{
+    if(v!==null){setHint(['cp1','cp2','cp3','cp4','cp5'][i],null);return;}
+    const knownSum=pcs.reduce((a,x)=>x!==null?a+x:a,0);
+    const mc=pcs.filter(x=>x===null).length;
+    setHint(['cp1','cp2','cp3','cp4','cp5'][i], mc>0?(needRpc*5-knownSum)/mc:null);
+  });
+  // Participación
+  if(prt===null){ const needPrt=(needRT-(rcl!==null?0.25*rcl:0)-(rpc!==null?0.70*rpc:0))/0.05; setHint('cprt',needPrt); } else setHint('cprt',null);
+  // Parcial / Final
+  if(ep===null){ const a=0.40*(rt!==null?rt:tParts)+(ef!==null?0.30*ef:0); setHint('cep',(11-a)/0.30); } else setHint('cep',null);
+  if(ef===null){ const a=0.40*(rt!==null?rt:tParts)+(ep!==null?0.30*ep:0); setHint('cef',(11-a)/0.30); } else setHint('cef',null);
+
+  const allIn=rtFull&&ep!==null&&ef!==null;
+  const pf=allIn?Math.round(accum*10)/10:null;
+  allPf.con=pf;
+  renderNeeds('c-needs',missing,accum);
+  updateBar('c-bar','c-pf','c-pfb',pf,accum);
+  updateHeader();
+  saveGrades();
+  resetSleepTimer();
+}
+
+// Ciencias Empresariales: CL(prom)*20% + Participación*10% + Avance TF grupal*5% + Avance TF individual*5% + Parcial*25% + TF escrito grupal*5% + Exposición TF*10% + Final escrito*20%
+function cE() {
+  const clIds=['ecl1','ecl2','ecl3','ecl4'];
+  const clVals=clIds.map(g);
+  clVals.forEach((v,i)=>colorInput(clIds[i],v));
+  const validCl=clVals.filter(x=>x!==null);
+  const rcl=validCl.length?validCl.reduce((a,b)=>a+b,0)/validCl.length:null;
+  const clFull=validCl.length===4;
+
+  const vals={};
+  EMP_FIELDS.forEach(([id])=>{ vals[id]=g(id); colorInput(id,vals[id]); });
+
+  let accum=0, missing=[];
+  if(rcl!==null) accum+=0.20*rcl;
+  if(!clFull) missing.push({name:'Controles de Lectura faltantes',w:0.20});
+  EMP_FIELDS.forEach(([id,w,label])=>{
+    if(vals[id]!==null) accum+=w*vals[id];
+    else missing.push({name:label,w});
+  });
+
+  // ── HINTS para campos no-CL ──
+  // accum ya excluye la contribución del propio campo si está vacío
+  EMP_FIELDS.forEach(([id,w])=>{
+    if(vals[id]===null) setHint(id, (11-accum)/w);
+    else setHint(id, null);
+  });
+
+  // ── HINTS para Controles de Lectura ──
+  if(!clFull){
+    const accumNoCL = accum - (rcl!==null?0.20*rcl:0);
+    const needCLavg = (11-accumNoCL)/0.20;
+    const knownSum = validCl.reduce((a,b)=>a+b,0);
+    const missingCount = 4-validCl.length;
+    clIds.forEach((id,i)=>{
+      if(clVals[i]!==null){ setHint(id,null); return; }
+      setHint(id, missingCount>0?(needCLavg*4-knownSum)/missingCount:null);
+    });
+  } else {
+    clIds.forEach(id=>setHint(id,null));
+  }
+
+  const allIn = clFull && EMP_FIELDS.every(([id])=>vals[id]!==null);
+  const pf = allIn ? Math.round(accum*10)/10 : null;
+  allPf.emp = pf;
+  renderNeeds('e-needs', missing, accum);
+  updateBar('e-bar','e-pf','e-pfb', pf, accum);
+  updateHeader();
+  saveGrades();
+  resetSleepTimer();
+}
+
+function recalcAll() { cM(); cI(); cL(); cC(); cE(); }
+
+// ── HEADER ──
+function updateHeader() {
+  ['mat','inf','len','con','emp'].forEach(k=>{
+    const v=allPf[k];
+    const el=document.getElementById('hd-'+k);
+    if(!el) return;
+    el.textContent=v!==null?v.toFixed(1):'—';
+    el.style.color=v===null?'#fff':v>=13?'#a8f0bc':v>=11?'#FFE082':'#FF8A80';
+  });
+  updateCapy();
+}
+
+// ════════════════════════════════════════════
+//  MODO GRAVE  (lógica centralizada)
+// ════════════════════════════════════════════
+
+const graveNames={mat:'Matemáticas',inf:'Informática',len:'Lenguaje',con:'Contabilidad',emp:'Ciencias Empresariales'};
+
+function getCourseData(curso) {
+  // Devuelve { accum, missing, pf } calculados de nuevo
+  let accum=0, missing=[];
+  if(curso==='mat'){
+    const pcs=['m1','m2','m3','m4'].map(g);
+    const weights=[2,2,3,3], totalW=10;
+    let ntP=0,ntW=0;
+    pcs.forEach((v,i)=>{if(v!==null){ntP+=weights[i]*v;ntW+=weights[i];}});
+    const ntEst=ntW>0?ntP/ntW:null;
+    const [ep,ef]=[g('mep'),g('mef')];
+    const ntMissing=pcs.filter(x=>x!==null).length<4;
+    if(!ntMissing&&ntEst!==null) accum+=0.5*ntEst;
+    else{if(ntEst!==null)accum+=0.5*ntEst; missing.push({name:'Nota de Trabajo',w:0.5});}
+    if(ep!==null)accum+=0.2*ep;else missing.push({name:'Parcial',w:0.2});
+    if(ef!==null)accum+=0.3*ef;else missing.push({name:'Final',w:0.3});
+  } else if(curso==='inf'){
+    const cs=[g('ic1'),g('ic2'),g('ic3')];
+    const validCs=cs.filter(x=>x!==null);
+    const pc=validCs.length?validCs.reduce((a,b)=>a+b,0)/validCs.length:null;
+    const [pc1,pc2,ep,ef]=[g('ipc1'),g('ipc2'),g('iep'),g('ief')];
+    let ntA=0;
+    if(pc1!==null)ntA+=0.35*pc1;if(pc2!==null)ntA+=0.45*pc2;if(pc!==null)ntA+=0.20*pc;
+    const ntFull=pc1!==null&&pc2!==null&&validCs.length>0;
+    const nt=ntFull?(0.35*pc1+0.45*pc2+0.20*pc):null;
+    if(ntFull)accum+=0.35*nt;else{accum+=0.35*ntA;missing.push({name:'Nota de Trabajo',w:0.35});}
+    if(ep!==null)accum+=0.30*ep;else missing.push({name:'Parcial',w:0.30});
+    if(ef!==null)accum+=0.35*ef;else missing.push({name:'Final',w:0.35});
+  } else if(curso==='len'){
+    const ps=[g('lp1'),g('lp2'),g('lp3')];
+    const validPs=ps.filter(x=>x!==null);
+    const pp=validPs.length?validPs.reduce((a,b)=>a+b,0)/validPs.length:null;
+    const [ep,ef]=[g('lep'),g('lef')];
+    if(pp!==null)accum+=0.40*pp;else missing.push({name:'Prácticas',w:0.40});
+    if(ep!==null)accum+=0.30*ep;else missing.push({name:'Parcial',w:0.30});
+    if(ef!==null)accum+=0.30*ef;else missing.push({name:'Final',w:0.30});
+  } else if(curso==='con'){
+    const cls=[g('ccl1'),g('ccl2')];
+    const validCls=cls.filter(x=>x!==null);
+    const rcl=validCls.length?validCls.reduce((a,b)=>a+b,0)/validCls.length:null;
+    const pcs=[g('cp1'),g('cp2'),g('cp3'),g('cp4'),g('cp5')];
+    const validPcs=pcs.filter(x=>x!==null);
+    const rpc=validPcs.length?validPcs.reduce((a,b)=>a+b,0)/validPcs.length:null;
+    const [prt,ep,ef]=[g('cprt'),g('cep'),g('cef')];
+    let tP=0;
+    if(rcl!==null)tP+=0.25*rcl;if(rpc!==null)tP+=0.70*rpc;if(prt!==null)tP+=0.05*prt;
+    const rtFull=rcl!==null&&rpc!==null&&prt!==null;
+    const rt=rtFull?(0.25*rcl+0.70*rpc+0.05*prt):null;
+    accum+=0.40*(rt!==null?rt:tP);
+    if(!rtFull)missing.push({name:'Nota de Trabajo',w:0.40});
+    if(ep!==null)accum+=0.30*ep;else missing.push({name:'Parcial',w:0.30});
+    if(ef!==null)accum+=0.30*ef;else missing.push({name:'Final',w:0.30});
+  } else {
+    // emp — Ciencias Empresariales
+    const cls=['ecl1','ecl2','ecl3','ecl4'].map(g);
+    const validCl=cls.filter(x=>x!==null);
+    const rcl=validCl.length?validCl.reduce((a,b)=>a+b,0)/validCl.length:null;
+    const clFull=validCl.length===4;
+    if(rcl!==null) accum+=0.20*rcl;
+    if(!clFull) missing.push({name:'Controles de Lectura',w:0.20});
+    EMP_FIELDS.forEach(([id,w,label])=>{
+      const v=g(id);
+      if(v!==null) accum+=w*v; else missing.push({name:label,w});
+    });
+  }
+  return {accum, missing};
+}
+
+function showGrave(curso) {
+  const {accum, missing} = getCourseData(curso);
+  const title=document.getElementById('graveTitle');
+  const sub=document.getElementById('graveSub');
+  const content=document.getElementById('graveContent');
+  title.textContent='😱 ¿Puedo recuperarme en '+graveNames[curso]+'?';
+
+  const totalW=missing.reduce((s,m)=>s+m.w,0);
+  const needed=totalW>0?(11-accum)/totalW:0;
+  const canPass=needed<=20;
+  const easy=needed<=11;
+  const hard=needed>17;
+
+  let html='';
+  if(!missing.length){
+    html=`<div style="background:var(--green-bg);border-radius:14px;padding:16px;text-align:center;color:var(--green-dark);font-weight:800;font-size:15px;">¡Ya tienes todas las notas! 🎉<br><span style="font-size:12px;font-weight:600;">El promedio final ya está calculado.</span></div>`;
+    sub.textContent='Todo registrado 🦫';
+  } else if(!canPass){
+    html=`<div style="background:var(--red-bg);border-radius:14px;padding:16px;text-align:center;color:var(--red-dark);font-weight:800;font-size:14px;margin-bottom:12px;">😬 Matemáticamente ya no es posible aprobar.<br><span style="font-weight:600;font-size:12px;">Necesitarías un ${needed.toFixed(1)} en promedio — imposible en escala 0-20.</span></div><div style="background:var(--brown-pale);border-radius:12px;padding:12px 14px;font-size:12px;color:var(--brown-mid);font-weight:700;">🦫 La capi dice: No todo está perdido. Habla con tu profe, busca recuperación o piensa en el siguiente ciclo con todo.</div>`;
+    sub.textContent='La capi se tapa los ojos 😱';
+    setCapySvg('scared');
+    const wrap=document.getElementById('capySvgWrap');
+    wrap.classList.add('capy-scared');
+    setTimeout(()=>wrap.classList.remove('capy-scared'),1500);
+  } else {
+    sub.textContent=easy?'¡Sí se puede! 💪':hard?'Muy difícil pero posible 🔥':'Con esfuerzo llegas 📖';
+    html+=`<div style="background:${easy?'var(--green-bg)':hard?'var(--red-bg)':'var(--yellow-bg)'};border-radius:14px;padding:14px 16px;margin-bottom:14px;text-align:center;"><div style="font-size:13px;font-weight:700;color:${easy?'var(--green-dark)':hard?'var(--red-dark)':'var(--yellow-dark)'};">${easy?'¡Vas bien! Necesitas en promedio:':hard?'Difícil, pero si sacas en promedio:':'Con esfuerzo, necesitas en promedio:'}</div><div style="font-size:36px;font-weight:900;color:${easy?'var(--green-dark)':hard?'var(--red-dark)':'var(--yellow-dark)'};">${needed.toFixed(1)}</div><div style="font-size:11px;color:${easy?'var(--green-dark)':hard?'var(--red-dark)':'var(--yellow-dark)'};opacity:.8;">en cada evaluación que falta</div></div>`;
+    html+='<div style="margin-bottom:8px">';
+    missing.forEach(({name,w})=>{
+      const nd=(11-accum)/w;
+      const cls=needColor(nd);
+      html+=`<div class="need-item ${cls}" style="margin-bottom:6px"><div class="ni-name">${name}</div><div class="ni-val">${needVal(nd)}</div></div>`;
+    });
+    html+='</div>';
+    html+=`<div style="background:var(--brown-pale);border-radius:12px;padding:12px 14px;font-size:12px;color:var(--brown-mid);font-weight:700;">🦫 ${easy?'¡Tú puedes, '+userName+'! La capi confía en ti.':hard?userName+', es difícil pero no imposible. ¡Dale con todo!':'Con dedicación llegas, '+userName+'. ¡No te rindas!'}</div>`;
+  }
+  content.innerHTML=html;
+  document.getElementById('graveOverlay').classList.add('show');
+}
+
+function closeGrave(e){
+  if(!e||e.target===document.getElementById('graveOverlay')||e.target.classList.contains('btn-close-grave')){
+    document.getElementById('graveOverlay').classList.remove('show');
+  }
+}
+
+// ════════════════════════════════════════════
+//  CAPIBARA
+// ════════════════════════════════════════════
+
+const capyMessages={
+  empty:  ['¡Pon tus notas! 🌿','¿Cómo vas hoy? 🦫','¡Aquí estoy! 🐾'],
+  great:  ['¡Estás brillando! ✨','¡Eres un crack! 🎉','¡Orgullosa de ti! 🌟','¡Top del salón! 🏆'],
+  good:   ['Vas bien, sigue así 💪','¡Buen ritmo! 🎯','Casi en la cima 📈','¡Tú puedes! 🌱'],
+  ok:     ['Aprobando, no bajes 👀','Aún hay chance 🍃','Dale con todo 🔥'],
+  bad:    ['Oye... hablemos 👀','Ánimo, aún hay tiempo ⏰','Sí se puede 🦫💪'],
+  done:   ['¡Lo lograste! 🎉🎉','¡Ciclo salvado! 🏅','¡La capi es feliz! 🦫✨'],
+};
+
+function getCapyState(){
+  const vals=Object.values(allPf).filter(x=>x!==null);
+  if(!vals.length) return 'empty';
+  const avg=vals.reduce((a,b)=>a+b,0)/vals.length;
+  if(avg>=15) return 'great';
+  if(avg>=13) return 'good';
+  if(avg>=11) return 'ok';
+  return 'bad';
+}
+function randomOf(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+function updateCapy(){
+  const state=getCapyState();
+  const vals=Object.values(allPf).filter(x=>x!==null);
+  const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
+  const allDone=Object.values(allPf).every(x=>x!==null);
+  const allPass=allDone&&Object.values(allPf).every(x=>x>=11);
+  let msg,svgState;
+  if(allPass){msg=randomOf(capyMessages.done);svgState='happy';}
+  else if(state==='empty'){msg=randomOf(capyMessages.empty);svgState='neutral';}
+  else if(state==='great'){msg=randomOf(capyMessages.great);svgState='happy';}
+  else if(state==='good'){msg=randomOf(capyMessages.good);svgState='neutral';}
+  else if(state==='ok'){msg=randomOf(capyMessages.ok);svgState='neutral';}
+  else{msg=randomOf(capyMessages.bad);svgState='scared';}
+  if(avg!==null&&prevAvg!==null&&avg>prevAvg+0.3&&avg>=11){
+    launchConfetti();svgState='happy';
+    const wrap=document.getElementById('capySvgWrap');
+    wrap.classList.remove('capy-dance','capy-scared','capy-sleep');
+    void wrap.offsetWidth;
+    wrap.classList.add('capy-dance');
+    setTimeout(()=>wrap.classList.remove('capy-dance'),2400);
+  }
+  prevAvg=avg;
+  setCapySvg(svgState);
+  const bubble=document.getElementById('capyBubble');
+  bubble.style.animation='none';
+  void bubble.offsetWidth;
+  bubble.style.animation='bubblePop .3s cubic-bezier(.4,0,.2,1)';
+  bubble.textContent=msg;
+}
+
+function setCapySvg(state){
+  ['Neutral','Happy','Scared','Sleep'].forEach(s=>{
+    document.getElementById('capySvg'+s).style.display='none';
+  });
+  const map={neutral:'Neutral',happy:'Happy',scared:'Scared',sleep:'Sleep'};
+  const el=document.getElementById('capySvg'+(map[state]||'Neutral'));
+  if(el) el.style.display='block';
+}
+function wiggleCapy(){
+  const wrap=document.getElementById('capySvgWrap');
+  wrap.classList.remove('capy-dance');
+  void wrap.offsetWidth;
+  wrap.classList.add('capy-dance');
+  setTimeout(()=>wrap.classList.remove('capy-dance'),2400);
+  const msgs=['¡Hola! 🦫','¡Ánimo! 💪','¡Tú puedes! ✨','¡A estudiar! 📚'];
+  document.getElementById('capyBubble').textContent=randomOf(msgs);
+}
+function resetSleepTimer(){
+  lastInput=Date.now();
+  if(sleepTimer) clearTimeout(sleepTimer);
+  const state=getCapyState();
+  if(state!=='empty') setCapySvg('neutral');
+  sleepTimer=setTimeout(()=>{
+    setCapySvg('sleep');
+    document.getElementById('capyBubble').textContent='Zzzz... 💤';
+  },60000);
+}
+let lastInput=Date.now();
+document.addEventListener('input',()=>{resetSleepTimer();});
+
+// ── CONFETTI ──
+function launchConfetti(){
+  const colors=['#C4874A','#7DBF8E','#F0C060','#E07373','#FF9EC7','#FFB347','#B5D4F4'];
+  for(let i=0;i<38;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div');
+      el.className='confetti-piece';
+      el.style.left=Math.random()*100+'vw';
+      el.style.top='-10px';
+      el.style.background=colors[Math.floor(Math.random()*colors.length)];
+      el.style.width=(8+Math.random()*8)+'px';
+      el.style.height=(8+Math.random()*8)+'px';
+      el.style.animationDuration=(1.2+Math.random()*1.2)+'s';
+      el.style.animationDelay=(Math.random()*0.5)+'s';
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),3000);
+    },i*40);
+  }
+}
+// ════════════════════════════════════════════
+//  OUTFIT SYSTEM
+// ════════════════════════════════════════════
+
+let selectedOutfit = 'none'; // during registration
+let currentOutfit = 'none';  // active for logged-in user
+
+// SVG outfit overlays — viewBox 0 0 100 110
+// ANATOMÍA EXACTA del capi neutral:
+//   cabeza (ellipse cx=50 cy=68 rx=26 ry=24) → top=44, bottom=92
+//   orejas: cx=38,cy=55 y cx=62,cy=55
+//   ojos blancos: cx=42,cy=66 y cx=58,cy=66
+//   nariz: ellipse cx=50,cy=76 rx=6 ry=3
+//   patas: cy=102
+const outfitSVG = {
+  none: '',
+  // Antenas: nacen de cada oreja hacia arriba
+  alien: `<g>
+    <line x1="38" y1="49" x2="28" y2="30" stroke="#9b59b6" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="28" cy="28" r="5.5" fill="#a855f7"/><circle cx="28" cy="28" r="2.8" fill="#e879f9"/>
+    <line x1="62" y1="49" x2="72" y2="30" stroke="#9b59b6" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="72" cy="28" r="5.5" fill="#a855f7"/><circle cx="72" cy="28" r="2.8" fill="#e879f9"/>
+  </g>`,
+  // Tutú: falda pegada encima de las patas (patas cy=102, cuerpo termina ~cy=92)
+  // El capi es redondito así que la falda va como cinturón en cy=88-92
+  tutu: `<g>
+    <ellipse cx="50" cy="90" rx="25" ry="7" fill="#ff69b4" opacity=".95"/>
+    <ellipse cx="50" cy="87" rx="21" ry="5.5" fill="#ffb6c1" opacity=".9"/>
+    <ellipse cx="50" cy="84" rx="17" ry="4" fill="#ff69b4" opacity=".85"/>
+    <path d="M41 81 Q45.5 76 50 81 Q54.5 76 59 81 Q54.5 86 50 81 Q45.5 86 41 81Z" fill="#ff1493" opacity=".9"/>
+    <circle cx="50" cy="81" r="3" fill="#ff69b4"/>
+  </g>`,
+  // Corbata: nace DEBAJO de la nariz (cy=76+3=79) y cae hasta cy=100
+  // El pecho del capi es entre cy=78 y cy=92, ancho ~30px ahí
+  tie: `<g>
+    <path d="M44 79 L47 76.5 L50 76 L53 76.5 L56 79" fill="#f0f0f0" stroke="#ccc" stroke-width=".8"/>
+    <polygon points="46.5,76.5 53.5,76.5 52.5,80 50,81 47.5,80" fill="#c0392b"/>
+    <polygon points="47.5,80 52.5,80 54,96 50,100 46,96" fill="#e74c3c"/>
+    <line x1="50" y1="83" x2="50" y2="95" stroke="#c0392b" stroke-width="0.8" opacity=".6"/>
+  </g>`,
+  // Corona: flota por encima de la cabeza (top de cabeza = cy=44)
+  crown: `<g>
+    <polygon points="26,48 34,34 42,44 50,30 58,44 66,34 74,48" fill="#F0C060" stroke="#d4a017" stroke-width="1.5"/>
+    <rect x="26" y="46" width="48" height="8" rx="3" fill="#F0C060" stroke="#d4a017" stroke-width="1"/>
+    <circle cx="50" cy="33" r="3.5" fill="#e74c3c"/>
+    <circle cx="35" cy="40" r="2.5" fill="#3498db"/>
+    <circle cx="65" cy="40" r="2.5" fill="#2ecc71"/>
+  </g>`,
+  // Astronauta: visor muy suave centrado en la cara, solo un overlay transparente
+  astro: `<g>
+    <circle cx="50" cy="64" r="24" fill="rgba(210,230,255,0.12)" stroke="#aac8f0" stroke-width="2"/>
+    <ellipse cx="50" cy="62" rx="14" ry="11" fill="rgba(80,160,255,0.15)" stroke="#88c0f0" stroke-width="1.2"/>
+    <ellipse cx="43" cy="57" rx="4.5" ry="3" fill="rgba(255,255,255,0.3)"/>
+  </g>`,
+  // Lentes: ojos en cx=42,cy=66 y cx=58,cy=66 — los lentes los cubren exacto
+  sunglasses: `<g>
+    <rect x="33.5" y="62.5" width="13" height="8.5" rx="4.2" fill="#1a1a2e" opacity=".92"/>
+    <rect x="53.5" y="62.5" width="13" height="8.5" rx="4.2" fill="#1a1a2e" opacity=".92"/>
+    <line x1="46.5" y1="66.5" x2="53.5" y2="66.5" stroke="#333" stroke-width="1.8"/>
+    <line x1="33.5" y1="66" x2="26" y2="63" stroke="#333" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="66.5" y1="66" x2="74" y2="63" stroke="#333" stroke-width="1.8" stroke-linecap="round"/>
+  </g>`,
+  // Fiesta: sombrero encima de la cabeza (cy=44 es el top)
+  party: `<g>
+    <polygon points="50,22 37,52 63,52" fill="#FF6B6B" stroke="#cc3333" stroke-width="1"/>
+    <polygon points="50,22 37,52 63,52" fill="none" stroke="#FFD700" stroke-width=".9" stroke-dasharray="4,3"/>
+    <circle cx="50" cy="20" r="4.5" fill="#FFD700"/>
+    <circle cx="34" cy="38" r="2" fill="#FFD700"/>
+    <circle cx="66" cy="40" r="2" fill="#3498db"/>
+    <circle cx="30" cy="52" r="1.8" fill="#2ecc71"/>
+    <circle cx="70" cy="50" r="1.8" fill="#e74c3c"/>
+    <circle cx="40" cy="28" r="1.5" fill="#9b59b6"/>
+  </g>`,
+};
+
+// Header icon version (viewBox 0 0 100 100)
+// Header capy: ojos cx=43,cy=51 y cx=57,cy=51 — boca cy=58 — orejas cy=42
+const outfitSVGHeader = {
+  none: '',
+  alien: `<g>
+    <line x1="36" y1="38" x2="26" y2="22" stroke="#9b59b6" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="26" cy="20" r="5" fill="#a855f7"/><circle cx="26" cy="20" r="2.5" fill="#e879f9"/>
+    <line x1="64" y1="38" x2="74" y2="22" stroke="#9b59b6" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="74" cy="20" r="5" fill="#a855f7"/><circle cx="74" cy="20" r="2.5" fill="#e879f9"/>
+  </g>`,
+  tutu: `<g>
+    <ellipse cx="50" cy="80" rx="23" ry="6" fill="#ff69b4" opacity=".95"/>
+    <ellipse cx="50" cy="77" rx="19" ry="5" fill="#ffb6c1" opacity=".9"/>
+    <ellipse cx="50" cy="74" rx="15" ry="3.5" fill="#ff69b4" opacity=".85"/>
+    <path d="M42 71 Q46 66 50 71 Q54 66 58 71 Q54 76 50 71 Q46 76 42 71Z" fill="#ff1493" opacity=".9"/>
+  </g>`,
+  tie: `<g>
+    <path d="M44 62 L47 59.5 L50 59 L53 59.5 L56 62" fill="#f0f0f0" stroke="#ccc" stroke-width=".8"/>
+    <polygon points="46.5,59.5 53.5,59.5 52.5,63 50,64 47.5,63" fill="#c0392b"/>
+    <polygon points="47.5,63 52.5,63 54,78 50,82 46,78" fill="#e74c3c"/>
+  </g>`,
+  crown: `<g>
+    <polygon points="26,38 34,24 42,34 50,20 58,34 66,24 74,38" fill="#F0C060" stroke="#d4a017" stroke-width="1.5"/>
+    <rect x="26" y="36" width="48" height="7" rx="3" fill="#F0C060" stroke="#d4a017" stroke-width="1"/>
+    <circle cx="50" cy="23" r="3" fill="#e74c3c"/>
+    <circle cx="35" cy="30" r="2" fill="#3498db"/>
+    <circle cx="65" cy="30" r="2" fill="#2ecc71"/>
+  </g>`,
+  astro: `<g>
+    <circle cx="50" cy="49" r="22" fill="rgba(210,230,255,0.12)" stroke="#aac8f0" stroke-width="2"/>
+    <ellipse cx="50" cy="47" rx="13" ry="10" fill="rgba(80,160,255,0.15)" stroke="#88c0f0" stroke-width="1.2"/>
+    <ellipse cx="44" cy="43" rx="4" ry="2.5" fill="rgba(255,255,255,0.3)"/>
+  </g>`,
+  sunglasses: `<g>
+    <rect x="33.5" y="48" width="12.5" height="8" rx="4" fill="#1a1a2e" opacity=".92"/>
+    <rect x="54" y="48" width="12.5" height="8" rx="4" fill="#1a1a2e" opacity=".92"/>
+    <line x1="46" y1="52" x2="54" y2="52" stroke="#333" stroke-width="1.8"/>
+    <line x1="33.5" y1="52" x2="27" y2="49" stroke="#333" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="66.5" y1="52" x2="73" y2="49" stroke="#333" stroke-width="1.8" stroke-linecap="round"/>
+  </g>`,
+  party: `<g>
+    <polygon points="50,10 37,40 63,40" fill="#FF6B6B" stroke="#cc3333" stroke-width="1"/>
+    <polygon points="50,10 37,40 63,40" fill="none" stroke="#FFD700" stroke-width=".9" stroke-dasharray="4,3"/>
+    <circle cx="50" cy="8" r="4" fill="#FFD700"/>
+    <circle cx="34" cy="26" r="1.8" fill="#FFD700"/>
+    <circle cx="66" cy="28" r="1.8" fill="#3498db"/>
+  </g>`,
+};
+
+function selectOutfit(outfit, btn) {
+  selectedOutfit = outfit;
+  document.querySelectorAll('#regOutfitGrid .outfit-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function applyOutfit(outfit, btn) {
+  currentOutfit = outfit;
+  document.querySelectorAll('#modalOutfitGrid .outfit-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  renderOutfitPreview();
+  applyOutfitToCapy();
+  saveOutfit();
+}
+
+function renderOutfitPreview() {
+  const layer = document.getElementById('outfitPreviewLayer');
+  if (layer) layer.innerHTML = outfitSVG[currentOutfit] || '';
+}
+
+function applyOutfitToCapy() {
+  // header avatar
+  const headerLayer = document.getElementById('headerOutfitLayer');
+  if (headerLayer) headerLayer.innerHTML = outfitSVGHeader[currentOutfit] || '';
+  // floating capy — inject into all state SVGs
+  ['capySvgNeutral','capySvgHappy','capySvgScared','capySvgSleep'].forEach(svgId => {
+    const svg = document.getElementById(svgId);
+    if (!svg) return;
+    let layer = svg.querySelector('.outfit-overlay');
+    if (!layer) { layer = document.createElementNS('http://www.w3.org/2000/svg','g'); layer.classList.add('outfit-overlay'); svg.appendChild(layer); }
+    layer.innerHTML = outfitSVG[currentOutfit] || '';
+  });
+}
+
+function saveOutfit() {
+  if (!currentUser) return;
+  const db = loadDB();
+  if (!db[currentUser]) return;
+  db[currentUser].outfit = currentOutfit;
+  saveDB(db);
+}
+
+function loadOutfit() {
+  if (!currentUser) return;
+  const db = loadDB();
+  currentOutfit = db[currentUser]?.outfit || 'none';
+  applyOutfitToCapy();
+  // update modal selected state
+  document.querySelectorAll('#modalOutfitGrid .outfit-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.outfit === currentOutfit);
+  });
+}
+
+function openOutfitModal() {
+  renderOutfitPreview();
+  document.querySelectorAll('#modalOutfitGrid .outfit-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.outfit === currentOutfit);
+  });
+  document.getElementById('outfitModal').classList.add('show');
+  wiggleCapy();
+}
+
+function closeOutfitModal() {
+  document.getElementById('outfitModal').classList.remove('show');
+}
+</script>
